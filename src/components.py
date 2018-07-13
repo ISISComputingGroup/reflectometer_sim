@@ -45,7 +45,7 @@ class TrackingComponent(Component):
     A component which does not effect the beam but could track it
     """
     def __init__(self, x_position):
-        super(TrackingComponent).__init__()
+        super(TrackingComponent, self).__init__()
         self.x_position = x_position
 
     def get_outgoing_beam(self):
