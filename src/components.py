@@ -60,6 +60,24 @@ class Component(object):
         self.incoming_beam = None
         self._movement_strategy = movement_strategy
         self._beam_path_update_listener = lambda: None
+        self._enabled = True
+
+    @property
+    def enabled(self):
+        """
+        Returns: the enabled status
+        """
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, enabled):
+        """
+        Updates the component enabled status and notifies the beam path update listener
+        Args:
+            enabled: The modified enabled status
+        """
+        self._enabled = enabled
+        self._beam_path_update_listener()
 
     def set_incoming_beam(self, incoming_beam):
         """
@@ -163,12 +181,15 @@ class ActiveComponent(PassiveComponent):
         """
         Returns: the outgoing beam based on the last set incoming beam and any interaction with the component
         """
+        if not self._enabled:
+            return self.incoming_beam
+
         target_position = self.calculate_beam_interception()
         angle = self._angle*2 + self.incoming_beam.angle
         return PositionAndAngle(target_position.x, target_position.y, angle)
 
 
-class Beamline():
+class Beamline(object):
     """
     The collection of all beamline components
     """

@@ -98,7 +98,20 @@ class TestNonTiltingJawsAtFixedX(unittest.TestCase):
 
         assert_that(result, is_(expected_angle))
 
+    def test_GIVEN_angled_mirror_is_disabled_WHEN_get_beam_out_THEN_outgoing_beam_is_incoming_beam(self):
+        mirror_x_position = 10
+        mirror_angle = 15
+        beam_start = PositionAndAngle(x=0, y=0, angle=0)
+        expected = beam_start
 
+        mirror = ActiveComponent(movement_strategy=VerticalMovement(mirror_x_position))
+        mirror.angle = mirror_angle
+        mirror.set_incoming_beam(beam_start)
+        mirror.enabled = False
+
+        result = mirror.get_outgoing_beam()
+
+        assert_that(result, is_(position_and_angle(expected)))
 
 if __name__ == '__main__':
     unittest.main()
