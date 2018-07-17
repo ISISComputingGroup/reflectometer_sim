@@ -4,29 +4,28 @@ Components on a beam
 from math import tan, radians
 
 
-class PositionAndAngle(object):
-    """
-    The beam position and direction
-    """
-    def __init__(self, x, y, angle):
-        self.x = x
-        self.y = y
-        self.angle = angle
-
-    def __repr__(self):
-        return "PositionAndAngle({}, {}, {})".format(self.x, self.y, self.angle)
-
-
 class Position(object):
     """
     The beam position and direction
     """
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = float(x)
+        self.y = float(y)
 
     def __repr__(self):
         return "Position({}, {})".format(self.x, self.y)
+
+
+class PositionAndAngle(Position):
+    """
+    The beam position and direction
+    """
+    def __init__(self, x, y, angle):
+        super(PositionAndAngle, self).__init__(x, y)
+        self.angle = float(angle)
+
+    def __repr__(self):
+        return "PositionAndAngle({}, {}, {})".format(self.x, self.y, self.angle)
 
 
 class VerticalMovement(object):
@@ -46,6 +45,7 @@ class VerticalMovement(object):
         Returns: position of the interception
 
         """
+        assert beam is not None
         distance_from_incoming_beam = self._x_position - beam.x
         y = tan(radians(beam.angle)) * distance_from_incoming_beam
         return Position(self._x_position, y)
@@ -59,6 +59,7 @@ class Component(object):
     def __init__(self, movement_strategy):
         self.incoming_beam = None
         self._movement_strategy = movement_strategy
+        self._beam_path_update_listener = lambda: None
 
     def set_incoming_beam(self, incoming_beam):
         """
@@ -74,6 +75,14 @@ class Component(object):
         :return: the outgoing beam based on the last set incoming beam and any interaction with the component
         """
         raise NotImplemented()
+
+    def set_beam_path_update_listener(self, beam_path_update_listener):
+        """
+        Sets a beam path update listener on this component, which is called when the beam path changes
+        Args:
+            beam_path_update_listener: The listener
+        """
+        self._beam_path_update_listener = beam_path_update_listener
 
 
 class PassiveComponent(Component):
@@ -131,12 +140,71 @@ class ActiveComponent(PassiveComponent):
             movement_strategy: strategy encapsulating movement of the component
         """
         super(ActiveComponent, self).__init__(movement_strategy)
-        self.angle = 0
+        self._angle = 0
+
+    @property
+    def angle(self):
+        """
+        Returns: the angle
+        """
+        return self._angle
+
+    @angle.setter
+    def angle(self, angle):
+        """
+        Updates the component angle and notifies the beam path update listener
+        Args:
+            angle: The modified angle
+        """
+        self._angle = angle
+        self._beam_path_update_listener()
 
     def get_outgoing_beam(self):
         """
         Returns: the outgoing beam based on the last set incoming beam and any interaction with the component
         """
         target_position = self.calculate_beam_interception()
-        angle = self.angle*2 + self.incoming_beam.angle
+        angle = self._angle*2 + self.incoming_beam.angle
         return PositionAndAngle(target_position.x, target_position.y, angle)
+
+
+class Beamline():
+    """
+    The collection of all beamline components
+    """
+    def __init__(self, components):
+        """
+        The initialiser
+        Args:
+            components: The collection of beamline components
+        """
+        self._components = components
+        [component.set_beam_path_update_listener(self.update_beam_path) for component in components]
+        self.incoming_beam = None
+
+    def __getitem__(self, item):
+        """
+        Args:
+            item: the index of the component
+
+        Returns: the indexed component
+        """
+        return self._components[item]
+
+    def set_incoming_beam(self, incoming_beam):
+        """
+        Set the incoming beam for the component
+        Args:
+            incoming_beam: incoming beam
+        """
+        self.incoming_beam = incoming_beam
+        self.update_beam_path()
+
+    def update_beam_path(self):
+        """
+        Updates the beam path for all components
+        """
+        outgoing = self.incoming_beam
+        for component in self._components:
+            component.set_incoming_beam(outgoing)
+            outgoing = component.get_outgoing_beam()

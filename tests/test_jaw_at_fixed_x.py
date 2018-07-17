@@ -17,9 +17,9 @@ class TestNonTiltingJawsAtFixedX(unittest.TestCase):
 
         result = jaws.get_outgoing_beam()
 
-        assert_that(result, is_(position(beam_start)))
+        assert_that(result, is_(position_and_angle(beam_start)))
 
-    def test_GIVEN_jaw_at_10_input_beam_is_at_0_deg_and_x0_y0_WHEN_get_position_THEN_x_is_jaw_position_y_is_0_angle_is_at_right_angles(self):
+    def test_GIVEN_jaw_at_10_input_beam_is_at_0_deg_and_x0_y0_WHEN_get_position_THEN_x_is_jaw_position_y_is_0(self):
         jaws_x_position = 10
         beam_start = PositionAndAngle(x=0, y=0, angle=0)
         expected_position = Position(x=jaws_x_position, y=0)
@@ -30,7 +30,7 @@ class TestNonTiltingJawsAtFixedX(unittest.TestCase):
 
         assert_that(result, is_(position(expected_position)))
 
-    def test_GIVEN_jaw_at_10_input_beam_is_at_60_deg_and_x0_y0_WHEN_get_position_THEN_x_is_jaw_position_y_is_at_tan60_times_10_is_at_150_degrees(self):
+    def test_GIVEN_jaw_at_10_input_beam_is_at_60_deg_and_x0_y0_WHEN_get_position_THEN_x_is_jaw_position_y_is_at_tan60_times_10(self):
         jaws_x_position = 10.0
         beam_angle = 60.0
         beam_start = PositionAndAngle(x=0, y=0, angle=beam_angle)
@@ -42,7 +42,7 @@ class TestNonTiltingJawsAtFixedX(unittest.TestCase):
 
         assert_that(result, is_(position(expected_position)))
 
-    def test_GIVEN_jaw_at_10_input_beam_is_at_60_deg_and_x5_y30_WHEN_get_position_THEN_x_is_jaw_position_y_is_at_tan60_times_distance_between_input_beam_and_component_angle_is_at_150_degrees(self):
+    def test_GIVEN_jaw_at_10_input_beam_is_at_60_deg_and_x5_y30_WHEN_get_position_THEN_x_is_jaw_position_y_is_at_tan60_times_distance_between_input_beam_and_component(self):
         distance_between = 5.0
         start_x = 5.0
         start_y = 30
