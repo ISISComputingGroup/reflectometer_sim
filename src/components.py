@@ -1,7 +1,7 @@
 """
 Components on a beam
 """
-from math import tan, radians
+from math import tan, radians, cos, sin
 
 
 class Position(object):
@@ -21,6 +21,13 @@ class PositionAndAngle(Position):
     The beam position and direction
     """
     def __init__(self, x, y, angle):
+        """
+
+        Args:
+            x: x position in room co-ordinates
+            y: y position in room co-ordinates
+            angle: clockwise angle measured from the horizon (90 to -90 with 0 pointing away from the source)
+        """
         super(PositionAndAngle, self).__init__(x, y)
         self.angle = float(angle)
 
@@ -30,7 +37,7 @@ class PositionAndAngle(Position):
 
 class VerticalMovement(object):
     """
-    A strategy for calculating the interception of components with the beam that can only move vertically
+    A strategy for calculating the interception of the beam with a component that can only move vertically
     """
 
     def __init__(self, x_position):
@@ -49,6 +56,15 @@ class VerticalMovement(object):
         distance_from_incoming_beam = self._x_position - beam.x
         y = tan(radians(beam.angle)) * distance_from_incoming_beam
         return Position(self._x_position, y)
+
+
+class ArcMovement(VerticalMovement):
+    """
+    A strategy for calculating the interception of the beam with a component that can only move on a radius
+    """
+
+    def __init__(self, x_centre_of_rotation):
+        super(ArcMovement, self).__init__(x_centre_of_rotation)
 
 
 class Component(object):
@@ -147,6 +163,24 @@ class TiltingJaws(PassiveComponent):
         return self.get_outgoing_beam().angle + self.component_to_beam_angle
 
 
+
+class Bench(PassiveComponent):
+    """
+    Jaws which can tilt.
+    """
+    def __init__(self, centre_of_rotation_x, distance_from_sample_to_bench):
+        super(PassiveComponent, self).__init__(ArcMovement(centre_of_rotation_x))
+        self.distance_from_sample_to_bench = distance_from_sample_to_bench
+
+    def calculate_front_position(self):
+        """
+        Returns: the angle to tilt so the jaws are perpendicular to the beam.
+        """
+        center_of_rotation = self.calculate_beam_interception()
+        x = center_of_rotation.x + self.distance_from_sample_to_bench * cos(self.incoming_beam.angle)
+        y = center_of_rotation.y + self.distance_from_sample_to_bench * sin(self.incoming_beam.angle)
+        return Position(x, y)
+
 class ActiveComponent(PassiveComponent):
     """
     Active components affect the beam as it passes through them.
@@ -163,7 +197,7 @@ class ActiveComponent(PassiveComponent):
     @property
     def angle(self):
         """
-        Returns: the angle
+        Returns: the angle of the component measured clockwise from the horizon in the incoming beam direction.
         """
         return self._angle
 
@@ -185,7 +219,8 @@ class ActiveComponent(PassiveComponent):
             return self.incoming_beam
 
         target_position = self.calculate_beam_interception()
-        angle = self._angle*2 + self.incoming_beam.angle
+        theta = (self._angle - self.incoming_beam.angle)
+        angle = theta * 2 + self.incoming_beam.angle
         return PositionAndAngle(target_position.x, target_position.y, angle)
 
 
