@@ -119,29 +119,29 @@ class TestNonTiltingJawsAtFixedX(unittest.TestCase):
 
 
 
-    def test_GIVEN_bench_at_radius_10_input_beam_is_at_0_deg_and_x0_y0_WHEN_get_position_THEN_x_is_10_y_is_0(self):
-        bench_center_of_rotation = Position(10, 0)
-        bench_radius = 10
-        beam_start = PositionAndAngle(x=0, y=0, angle=0)
-        expected_position = Position(x=bench_center_of_rotation.x + bench_radius, y=0)
-        bench = PassiveComponent(movement_strategy=ArcMovement(bench_center_of_rotation, bench_radius))
-        bench.set_incoming_beam(beam_start)
-
-        result = bench.calculate_beam_interception()
-
-        assert_that(result, is_(position(expected_position)))
-
-    def test_GIVEN_bench_at_radius_10_input_beam_is_at_45_deg_and_x0_y0_WHEN_get_position_THEN_x_is_10_root2_y_is_10_root2(self):
-        bench_center_of_rotation = Position(10, 0)
-        bench_radius = 10
-        beam_start = PositionAndAngle(x=0, y=0, angle=0)
-        expected_position = Position(x=(bench_center_of_rotation.x + bench_radius) * sqrt(2), y=(bench_center_of_rotation.x + bench_radius) * sqrt(2))
-        bench = PassiveComponent(movement_strategy=ArcMovement(bench_center_of_rotation, bench_radius))
-        bench.set_incoming_beam(beam_start)
-
-        result = bench.calculate_beam_interception()
-
-        assert_that(result, is_(position(expected_position)))
+    # def test_GIVEN_bench_at_radius_10_input_beam_is_at_0_deg_and_x0_y0_WHEN_get_position_THEN_x_is_10_y_is_0(self):
+    #     bench_center_of_rotation = Position(10, 0)
+    #     bench_radius = 10
+    #     beam_start = PositionAndAngle(x=0, y=0, angle=0)
+    #     expected_position = Position(x=bench_center_of_rotation.x + bench_radius, y=0)
+    #     bench = PassiveComponent(movement_strategy=ArcMovement(bench_center_of_rotation, bench_radius))
+    #     bench.set_incoming_beam(beam_start)
+    #
+    #     result = bench.calculate_beam_interception()
+    #
+    #     assert_that(result, is_(position(expected_position)))
+    #
+    # def test_GIVEN_bench_at_radius_10_input_beam_is_at_45_deg_and_x0_y0_WHEN_get_position_THEN_x_is_10_root2_y_is_10_root2(self):
+    #     bench_center_of_rotation = Position(10, 0)
+    #     bench_radius = 10
+    #     beam_start = PositionAndAngle(x=0, y=0, angle=0)
+    #     expected_position = Position(x=(bench_center_of_rotation.x + bench_radius) * sqrt(2), y=(bench_center_of_rotation.x + bench_radius) * sqrt(2))
+    #     bench = PassiveComponent(movement_strategy=ArcMovement(bench_center_of_rotation, bench_radius))
+    #     bench.set_incoming_beam(beam_start)
+    #
+    #     result = bench.calculate_beam_interception()
+    #
+    #     assert_that(result, is_(position(expected_position)))
 
 
 if __name__ == '__main__':
