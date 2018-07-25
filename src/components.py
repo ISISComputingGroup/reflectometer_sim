@@ -54,7 +54,7 @@ class VerticalMovement(object):
         """
         assert beam is not None
         distance_from_incoming_beam = self._x_position - beam.x
-        y = tan(radians(beam.angle)) * distance_from_incoming_beam
+        y = beam.y + tan(radians(-beam.angle)) * distance_from_incoming_beam
         return Position(self._x_position, y)
 
 
@@ -163,7 +163,6 @@ class TiltingJaws(PassiveComponent):
         return self.get_outgoing_beam().angle + self.component_to_beam_angle
 
 
-
 class Bench(PassiveComponent):
     """
     Jaws which can tilt.
@@ -180,6 +179,7 @@ class Bench(PassiveComponent):
         x = center_of_rotation.x + self.distance_from_sample_to_bench * cos(self.incoming_beam.angle)
         y = center_of_rotation.y + self.distance_from_sample_to_bench * sin(self.incoming_beam.angle)
         return Position(x, y)
+
 
 class ActiveComponent(PassiveComponent):
     """
@@ -222,5 +222,3 @@ class ActiveComponent(PassiveComponent):
         theta = (self._angle - self.incoming_beam.angle)
         angle = theta * 2 + self.incoming_beam.angle
         return PositionAndAngle(target_position.x, target_position.y, angle)
-
-

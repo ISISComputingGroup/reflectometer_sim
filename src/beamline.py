@@ -1,3 +1,8 @@
+"""
+Resources at a beamline level
+"""
+
+
 class Beamline(object):
     """
     The collection of all beamline components
@@ -7,6 +12,7 @@ class Beamline(object):
         The initialiser
         Args:
             components: The collection of beamline components
+            beamline_parameters: a dictionary of parameters that characterise the beamline
         """
         self._components = components
         self._beamline_parameters = beamline_parameters
@@ -40,5 +46,13 @@ class Beamline(object):
             component.set_incoming_beam(outgoing)
             outgoing = component.get_outgoing_beam()
 
-    def parameter(self, index):
-        return self._beamline_parameters[index]
+    def parameter(self, key):
+        """
+        Args:
+            key: key of parameter to return
+
+        Returns:
+            the beamline parameter with the given key
+
+        """
+        return self._beamline_parameters[key]

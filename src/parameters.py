@@ -19,4 +19,4 @@ class Theta(object):
             theta:  Angle measured between the incoming beam and out going beam at the ideal sample point.
         """
         # incoming beam angle
-        self._ideal_sample_point.angle = self._ideal_sample_point.incoming_beam.angle + theta/2
+        self._ideal_sample_point.angle = self._ideal_sample_point.incoming_beam.angle - theta/2.0
