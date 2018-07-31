@@ -219,6 +219,6 @@ class ActiveComponent(PassiveComponent):
             return self.incoming_beam
 
         target_position = self.calculate_beam_interception()
-        theta = (self._angle - self.incoming_beam.angle)
-        angle = theta * 2 + self.incoming_beam.angle
+        angle_between_beam_and_component = (self._angle - self.incoming_beam.angle)
+        angle = angle_between_beam_and_component * 2 + self.incoming_beam.angle
         return PositionAndAngle(target_position.x, target_position.y, angle)
