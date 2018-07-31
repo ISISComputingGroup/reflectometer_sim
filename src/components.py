@@ -73,6 +73,12 @@ class Component(object):
     """
 
     def __init__(self, movement_strategy):
+        """
+        Initializer.
+        Args:
+            movement_strategy (VerticalMovement): strategy for calculating the interception between the movement of the
+            component and the incoming beam
+        """
         self.incoming_beam = None
         self._movement_strategy = movement_strategy
         self._beam_path_update_listener = lambda: None
@@ -99,14 +105,15 @@ class Component(object):
         """
         Set the incoming beam for the component
         Args:
-            incoming_beam: incoming beam
+            incoming_beam(PositionAndAngle): incoming beam
         """
         self.incoming_beam = incoming_beam
 
     def get_outgoing_beam(self):
         """
         This should be overriden in the subclass
-        :return: the outgoing beam based on the last set incoming beam and any interaction with the component
+        Retruns ((PositionAndAngle): the outgoing beam based on the last set incoming beam and any
+        interaction with the component
         """
         raise NotImplemented()
 

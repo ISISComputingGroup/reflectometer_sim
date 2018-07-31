@@ -35,7 +35,7 @@ def generate_theta_movement():
         positions_x,
     ]
     for theta in range(0, 40, 2):
-        beamline.parameter("theta").set(theta * 1.0)
+        beamline.parameter("theta").sp_move(theta * 1.0)
         positions_y = [component.calculate_beam_interception().y for component in beamline]
         positions_y.insert(0, "theta {}".format(theta))
         positions.append(positions_y)
@@ -44,7 +44,7 @@ def generate_theta_movement():
     sm_angle = -10
     beamline[3].angle = sm_angle
     for theta in range(0, 40, 2):
-        beamline.parameter("theta").set(theta * 1.0)
+        beamline.parameter("theta").sp_move(theta * 1.0)
         positions_y = [component.calculate_beam_interception().y for component in beamline]
         positions_y.insert(0, "theta {} sman{}".format(theta, sm_angle))
         positions.append(positions_y)

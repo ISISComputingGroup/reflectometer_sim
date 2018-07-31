@@ -8,7 +8,7 @@ from src.components import PositionAndAngle, PassiveComponent, ActiveComponent, 
 from tests.utils import position_and_angle, position
 
 
-class TestNonTiltingJawsAtFixedX(unittest.TestCase):
+class TestPassiveComponent(unittest.TestCase):
 
     def test_GIVEN_jaw_input_beam_is_at_0_deg_and_x0_y0_WHEN_get_beam_out_THEN_beam_output_is_same_as_beam_input(self):
         jaws_x_position = 10
@@ -58,8 +58,37 @@ class TestNonTiltingJawsAtFixedX(unittest.TestCase):
 
         assert_that(result, is_(position(expected_position)))
 
+    def test_GIVEN_tilting_jaw_input_beam_is_at_60_deg_WHEN_get_angle_THEN_angle_is_150_degrees(self):
+        beam_angle = 60.0
+        expected_angle = 60.0 + 90.0
+        beam_start = PositionAndAngle(x=0, y=0, angle=beam_angle)
+        jaws = TiltingJaws(movement_strategy=VerticalMovement(20))
+        jaws.set_incoming_beam(beam_start)
 
-    def test_GIVEN_mirror_with_input_beam_at_0_deg_and_x0_y0_WHEN_get_beam_out_THEN_beam_output_x_is_xmirror_y_is_ymirror_angle_is_input_angle_plus_device_angle(self):
+        result = jaws.calculate_tilt_angle()
+
+        assert_that(result, is_(expected_angle))
+
+
+class TestActiveComponents(unittest.TestCase):
+
+    def test_GIVEN_angled_mirror_is_disabled_WHEN_get_beam_out_THEN_outgoing_beam_is_incoming_beam(self):
+        mirror_x_position = 10
+        mirror_angle = 15
+        beam_start = PositionAndAngle(x=0, y=0, angle=0)
+        expected = beam_start
+
+        mirror = ActiveComponent(movement_strategy=VerticalMovement(mirror_x_position))
+        mirror.angle = mirror_angle
+        mirror.set_incoming_beam(beam_start)
+        mirror.enabled = False
+
+        result = mirror.get_outgoing_beam()
+
+        assert_that(result, is_(position_and_angle(expected)))
+
+    def test_GIVEN_mirror_with_input_beam_at_0_deg_and_x0_y0_WHEN_get_beam_out_THEN_beam_output_x_is_xmirror_y_is_ymirror_angle_is_input_angle_plus_device_angle(
+            self):
         mirror_x_position = 10
         mirror_angle = 15
         beam_start = PositionAndAngle(x=0, y=0, angle=0)
@@ -78,7 +107,9 @@ class TestNonTiltingJawsAtFixedX(unittest.TestCase):
                            (30, 30, 30),
                            (0, 90, 180),
                            (-40, -30, -20)])
-    def test_GIVEN_mirror_with_input_beam_at_WHEN_get_beam_out_THEN_beam_output_correct(self, beam_angle, mirror_angle, outgoing_angle):
+    def test_GIVEN_mirror_with_input_beam_at_WHEN_get_beam_out_THEN_beam_output_correct(self, beam_angle,
+                                                                                        mirror_angle,
+                                                                                        outgoing_angle):
         beam_start = PositionAndAngle(x=0, y=0, angle=beam_angle)
         expected = PositionAndAngle(x=0, y=0, angle=outgoing_angle)
 
@@ -88,38 +119,12 @@ class TestNonTiltingJawsAtFixedX(unittest.TestCase):
 
         result = mirror.get_outgoing_beam()
 
-        assert_that(result, is_(position_and_angle(expected)), "beam_angle: {}, mirror_angle: {}".format(beam_angle, mirror_angle))
-
-
-    def test_GIVEN_tilting_jaw_input_beam_is_at_60_deg_WHEN_get_angle_THEN_angle_is_150_degrees(self):
-        beam_angle = 60.0
-        expected_angle = 60.0 + 90.0
-        beam_start = PositionAndAngle(x=0, y=0, angle=beam_angle)
-        jaws = TiltingJaws(movement_strategy=VerticalMovement(20))
-        jaws.set_incoming_beam(beam_start)
-
-        result = jaws.calculate_tilt_angle()
-
-        assert_that(result, is_(expected_angle))
-
-    def test_GIVEN_angled_mirror_is_disabled_WHEN_get_beam_out_THEN_outgoing_beam_is_incoming_beam(self):
-        mirror_x_position = 10
-        mirror_angle = 15
-        beam_start = PositionAndAngle(x=0, y=0, angle=0)
-        expected = beam_start
-
-        mirror = ActiveComponent(movement_strategy=VerticalMovement(mirror_x_position))
-        mirror.angle = mirror_angle
-        mirror.set_incoming_beam(beam_start)
-        mirror.enabled = False
-
-        result = mirror.get_outgoing_beam()
-
-        assert_that(result, is_(position_and_angle(expected)))
+        assert_that(result, is_(position_and_angle(expected)),
+                    "beam_angle: {}, mirror_angle: {}".format(beam_angle, mirror_angle))
 
 
 
-    # def test_GIVEN_bench_at_radius_10_input_beam_is_at_0_deg_and_x0_y0_WHEN_get_position_THEN_x_is_10_y_is_0(self):
+            # def test_GIVEN_bench_at_radius_10_input_beam_is_at_0_deg_and_x0_y0_WHEN_get_position_THEN_x_is_10_y_is_0(self):
     #     bench_center_of_rotation = Position(10, 0)
     #     bench_radius = 10
     #     beam_start = PositionAndAngle(x=0, y=0, angle=0)
