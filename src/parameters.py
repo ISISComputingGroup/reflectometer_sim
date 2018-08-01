@@ -49,20 +49,42 @@ class BeamlineParameter(object):
         """
         Move to the setpoint, no matter what the value passed is.
         """
-        self._calc_move()
+        self._move_component()
         self._sp_is_changed = False
 
     sp = property(None, _set_sp)  # Set point property (for OPI)
     sp_rbv = property(_sp_rbv)  # set point readback property
-    sp_changed = property(_sp_changed)  # changed property
+    sp_changed = property(_sp_changed)
     sp_move = property(None, _sp_move)  # Set the set point and move to it (for scripts)
     move = property(None, _move)
 
-    def _calc_move(self):
+    def _move_component(self):
+        """
+        Moves the component(s) associated with this parameter to the setpoint.
+        """
         raise NotImplemented("This must be implement in the sub class")
 
 
-class Theta(BeamlineParameter):
+class ReflectionAngle(BeamlineParameter):
+    """
+    The angle of the mirror measured from the incoming beam.
+    Angle is measure with +ve in the anti-clockwise direction (opposite of room coordinates)
+    """
+
+    def __init__(self, reflection_component):
+        """
+        Initializer.
+        Args:
+            reflection_component (src.components.ActiveComponent): the active component at the reflection point
+        """
+        super(ReflectionAngle, self).__init__()
+        self._reflection_component = reflection_component
+
+    def _move_component(self):
+        self._reflection_component.angle = self._reflection_component.incoming_beam.angle - float(self._set_point)
+
+
+class Theta(ReflectionAngle):
     """
     Twice the angle between the incoming beam and outgoing beam at the ideal sample point.
     Angle is measure with +ve in the anti-clockwise direction (opposite of room coordinates)
@@ -74,8 +96,22 @@ class Theta(BeamlineParameter):
         Args:
             ideal_sample_point (src.components.ActiveComponent): the ideal sample point active component
         """
-        super(Theta, self).__init__()
-        self._ideal_sample_point = ideal_sample_point
+        super(Theta, self).__init__(ideal_sample_point)
 
-    def _calc_move(self):
-        self._ideal_sample_point.angle = self._ideal_sample_point.incoming_beam.angle - float(self._set_point)
+
+class TrackingPosition(BeamlineParameter):
+    """
+    Component which tracks the position of the beam with a single degree of freedom. E.g. slit set on a height stage
+    """
+
+    def __init__(self, component):
+        """
+
+        Args:
+            component (src.components.PassiveComponent):
+        """
+        super(TrackingPosition, self).__init__()
+        self._component = component
+
+    def _move_component(self):
+        self._component.set_position_relative_to_beam(self._set_point)

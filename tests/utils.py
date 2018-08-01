@@ -1,6 +1,7 @@
 """
 Utils for testing
 """
+from math import fabs
 
 from hamcrest.core.base_matcher import BaseMatcher
 
@@ -11,9 +12,13 @@ class IsPositionAndAngle(BaseMatcher):
 
     Checks that the beam values are all the same
     """
-    def __init__(self, expected_beam, do_compare_angle):
+    def __init__(self, expected_beam, do_compare_angle, tolerance=None):
         self.expected_position_and_angle = expected_beam
         self.compare_angle = do_compare_angle
+        if tolerance is None:
+            self._tolerance = 1e-9
+        else:
+            self._tolerance = tolerance
 
     def _matches(self, beam):
         """
@@ -23,9 +28,9 @@ class IsPositionAndAngle(BaseMatcher):
         """
         if not hasattr(beam, 'x') or not hasattr(beam, 'y') or (self.compare_angle and not hasattr(beam, 'angle')):
             return False
-        return beam.x == self.expected_position_and_angle.x and \
-            beam.y == self.expected_position_and_angle.y and \
-               (not self.compare_angle or beam.angle == self.expected_position_and_angle.angle)
+        return fabs(beam.x - self.expected_position_and_angle.x) <= self._tolerance and \
+            fabs(beam.y - self.expected_position_and_angle.y) <= self._tolerance and \
+               (not self.compare_angle or fabs(beam.angle - self.expected_position_and_angle.angle) <= self._tolerance)
 
     def describe_to(self, description):
         """
@@ -35,27 +40,31 @@ class IsPositionAndAngle(BaseMatcher):
         if self.compare_angle:
             description.append_text(self.expected_position_and_angle)
         else:
-            description.append_text("{} (compare position)".format(self.expected_position_and_angle))
+            description.append_text("{} (compare position to within {})".format(self.expected_position_and_angle,
+                                                                                self._tolerance))
 
 
-def position_and_angle(expected_beam):
+def position_and_angle(expected_beam, tolerance=None):
     """
     PositionAndAngle matcher.
     Args:
         expected_beam: expected beam to match.
+        tolerance: tolerance within which the number need to be
 
     Returns: the matcher for the beam
 
     """
-    return IsPositionAndAngle(expected_beam, True)
+    return IsPositionAndAngle(expected_beam, True, tolerance)
 
-def position(expected_position):
+
+def position(expected_position, tolerance=None):
     """
     Position matcher.
     Args:
         expected_position: expected position to match.
+        tolerance: tolerance within which the number need to be
 
     Returns: the matcher for the position
 
     """
-    return IsPositionAndAngle(expected_position, False)
+    return IsPositionAndAngle(expected_position, False, tolerance)

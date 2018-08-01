@@ -42,6 +42,7 @@ class VerticalMovement(object):
 
     def __init__(self, x_position):
         self._x_position = x_position
+        self._y_position = 0
 
     def calculate_interception(self, beam):
         """
@@ -56,6 +57,22 @@ class VerticalMovement(object):
         distance_from_incoming_beam = self._x_position - beam.x
         y = beam.y + tan(radians(-beam.angle)) * distance_from_incoming_beam
         return Position(self._x_position, y)
+
+    def set_position_relative_to_beam(self, beam_position, value):
+        """
+        Set the position of the component relative to the beam for the given value based on its movement strategy.
+        For instance this could set the height above hte beam for a vertically moving component
+        Args:
+            beam_position: the current beam position of the item
+            value: the value to set away from the beam, e.g. height
+        """
+        self._y_position = beam_position.y + value
+
+    def sp_position(self):
+        """
+        Returns (Position): The set point position of this component.
+        """
+        return Position(self._x_position, self._y_position)
 
 
 class ArcMovement(VerticalMovement):
@@ -111,9 +128,8 @@ class Component(object):
 
     def get_outgoing_beam(self):
         """
-        This should be overriden in the subclass
-        Retruns ((PositionAndAngle): the outgoing beam based on the last set incoming beam and any
-        interaction with the component
+        This should be overridden in the subclass
+        Returns (PositionAndAngle): the outgoing beam based on the incoming beam and any interaction with the component
         """
         raise NotImplemented()
 
@@ -152,6 +168,22 @@ class PassiveComponent(Component):
 
         """
         return self._movement_strategy.calculate_interception(self.incoming_beam)
+
+    def set_position_relative_to_beam(self, value):
+        """
+        Set the position of the component relative to the beam for the given value based on its movement strategy.
+        For instance this could set the height above hte beam for a vertically moving component
+        Args:
+            value: the value to set away from the beam, e.g. height
+        """
+
+        self._movement_strategy.set_position_relative_to_beam(self.calculate_beam_interception(), value)
+
+    def sp_position(self):
+        """
+        Returns (Position): The set point position of this component.
+        """
+        return self._movement_strategy.sp_position()
 
 
 class TiltingJaws(PassiveComponent):
