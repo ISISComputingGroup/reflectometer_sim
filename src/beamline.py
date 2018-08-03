@@ -26,8 +26,10 @@ class Beamline(object):
             beamline_parameters: a dictionary of parameters that characterise the beamline
         """
         self._components = components
-        assert type(beamline_parameters) is OrderedDict
-        self._beamline_parameters = beamline_parameters
+        self._beamline_parameters = OrderedDict()
+        for beamline_parameter in beamline_parameters:
+            self._beamline_parameters[beamline_parameter.name] = beamline_parameter
+
         [component.set_beam_path_update_listener(self.update_beam_path) for component in components]
         self.incoming_beam = None
         self.mode = None

@@ -27,10 +27,10 @@ class TestComponentBeamline(unittest.TestCase):
         s4 = PassiveComponent(movement_strategy=VerticalMovement(8))
         detector = PassiveComponent(movement_strategy=VerticalMovement(10))
 
-        theta = Theta(self.ideal_sample_point)
+        theta = Theta("theta", self.ideal_sample_point)
         self.beamline = Beamline(
             [s0, s1, frame_overlap_mirror, self.polerising_mirror, s2,self.ideal_sample_point, s3, analyser, s4, detector],
-            {"theta": theta})
+            [theta])
         self.beamline.set_incoming_beam(beam_start)
 
     def test_GIVEN_beam_line_contains_multiple_component_WHEN_set_theta_THEN_angle_between_incoming_and_outgoing_beam_is_correct(self):

@@ -17,7 +17,7 @@ class TestBeamlineParameter(unittest.TestCase):
         sample = ActiveComponent(movement_strategy=VerticalMovement(0))
         mirror_pos = -100
         sample.angle = mirror_pos
-        theta = Theta(sample)
+        theta = Theta("theta", sample)
 
         theta.sp = theta_set
         result = theta.sp_rbv
@@ -33,7 +33,7 @@ class TestBeamlineParameter(unittest.TestCase):
         sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
         mirror_pos = -100
         sample.angle = mirror_pos
-        theta = Theta(sample)
+        theta = Theta("theta", sample)
 
         theta.sp = theta_set
         theta.move = 1
@@ -46,7 +46,7 @@ class TestBeamlineParameter(unittest.TestCase):
 
         theta_set = 10.0
         sample = ActiveComponent(movement_strategy=VerticalMovement(0))
-        theta = Theta(sample)
+        theta = Theta("theta",sample)
 
         theta.sp = theta_set
         result = theta.sp_changed
@@ -58,7 +58,7 @@ class TestBeamlineParameter(unittest.TestCase):
         theta_set = 10.0
         sample = ActiveComponent(movement_strategy=VerticalMovement(0))
         sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
-        theta = Theta(sample)
+        theta = Theta("theta",sample)
 
         theta.sp = theta_set
         theta.move = 1
@@ -74,7 +74,7 @@ class TestBeamlineParameter(unittest.TestCase):
         sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
         mirror_pos = -100
         sample.angle = mirror_pos
-        reflection_angle = ReflectionAngle(sample)
+        reflection_angle = ReflectionAngle("theta",sample)
 
         reflection_angle.sp = angle_set
         reflection_angle.move = 1
@@ -91,7 +91,7 @@ class TestBeamlineParameter(unittest.TestCase):
         jaws_x = 5
         jaws = PassiveComponent(movement_strategy=VerticalMovement(jaws_x))
         jaws.set_incoming_beam(PositionAndAngle(0, beam_height, 0))
-        tracking_height = TrackingPosition(jaws)
+        tracking_height = TrackingPosition("theta",jaws)
 
         tracking_height.sp = height_set
         tracking_height.move = 1
@@ -101,19 +101,20 @@ class TestBeamlineParameter(unittest.TestCase):
         assert_that(jaws.sp_position().y, is_(expected_height))
         assert_that(jaws.sp_position().x, is_(jaws_x))
 
+
 class TestBeamlineModes(unittest.TestCase):
 
-    def test_GIVEN_unpolerised_mode_and_beamline_parameters_are_set_WHEN_move_THEN_components_move_onto_beam_line(self):
+    def test_GIVEN_unpolarised_mode_and_beamline_parameters_are_set_WHEN_move_THEN_components_move_onto_beam_line(self):
         slit2 = PassiveComponent(VerticalMovement(x_position=10))
         ideal_sample_point = ActiveComponent(VerticalMovement(x_position=20))
         detector = PassiveComponent(VerticalMovement(x_position=30))
         components = [slit2, ideal_sample_point, detector]
 
-        parameters = OrderedDict()
-        parameters["slit2height"] = TrackingPosition(slit2)
-        parameters["height"] = TrackingPosition(ideal_sample_point)
-        parameters["theta"] = Theta(ideal_sample_point)
-        parameters["detectorheight"] = TrackingPosition(detector)
+        parameters = [
+            TrackingPosition("slit2height", slit2),
+            TrackingPosition("height", ideal_sample_point),
+            Theta("theta", ideal_sample_point),
+            TrackingPosition("detectorheight", detector)]
                       #parameters["detectorAngle": TrackingAngle(detector)
         beam = PositionAndAngle(0, 0, 45)
         beamline = Beamline(components, parameters)
