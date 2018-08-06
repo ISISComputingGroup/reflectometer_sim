@@ -89,10 +89,11 @@ class Component(object):
     Base object for all components that can sit on a beam line
     """
 
-    def __init__(self, movement_strategy):
+    def __init__(self, name, movement_strategy):
         """
         Initializer.
         Args:
+            name (str): name of the component
             movement_strategy (VerticalMovement): strategy for calculating the interception between the movement of the
             component and the incoming beam
         """
@@ -100,6 +101,7 @@ class Component(object):
         self._movement_strategy = movement_strategy
         self._beam_path_update_listener = lambda: None
         self._enabled = True
+        self._name = name
 
     @property
     def enabled(self):
@@ -117,6 +119,13 @@ class Component(object):
         """
         self._enabled = enabled
         self._beam_path_update_listener()
+
+    @property
+    def name(self):
+        """
+        Returns: Name of the component
+        """
+        return self._name
 
     def set_incoming_beam(self, incoming_beam):
         """
@@ -147,13 +156,14 @@ class PassiveComponent(Component):
     A component which does not effect the beam
     """
 
-    def __init__(self, movement_strategy):
+    def __init__(self, name, movement_strategy):
         """
         Initializer.
         Args:
+            name (str): name of the component
             movement_strategy: strategy encapsulating movement of the component
         """
-        super(PassiveComponent, self).__init__(movement_strategy)
+        super(PassiveComponent, self).__init__(name, movement_strategy)
 
     def get_outgoing_beam(self):
         """
@@ -192,8 +202,14 @@ class TiltingJaws(PassiveComponent):
     """
     component_to_beam_angle = 90
 
-    def __init__(self, movement_strategy):
-        super(PassiveComponent, self).__init__(movement_strategy)
+    def __init__(self, name, movement_strategy):
+        """
+        Initializer.
+        Args:
+            name (str): name of the component
+            movement_strategy: strategy encapsulating movement of the component
+        """
+        super(PassiveComponent, self).__init__(name, movement_strategy)
 
     def calculate_tilt_angle(self):
         """
@@ -206,8 +222,9 @@ class Bench(PassiveComponent):
     """
     Jaws which can tilt.
     """
-    def __init__(self, centre_of_rotation_x, distance_from_sample_to_bench):
-        super(PassiveComponent, self).__init__(ArcMovement(centre_of_rotation_x))
+    def __init__(self, name, centre_of_rotation_x, distance_from_sample_to_bench):
+
+        super(PassiveComponent, self).__init__(name, ArcMovement(centre_of_rotation_x))
         self.distance_from_sample_to_bench = distance_from_sample_to_bench
 
     def calculate_front_position(self):
@@ -224,13 +241,14 @@ class ActiveComponent(PassiveComponent):
     """
     Active components affect the beam as it passes through them.
     """
-    def __init__(self, movement_strategy):
+    def __init__(self, name, movement_strategy):
         """
         Initializer.
         Args:
+            name (str): name of the component
             movement_strategy: strategy encapsulating movement of the component
         """
-        super(ActiveComponent, self).__init__(movement_strategy)
+        super(ActiveComponent, self).__init__(name, movement_strategy)
         self._angle = 0
 
     @property

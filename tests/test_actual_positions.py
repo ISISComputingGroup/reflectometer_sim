@@ -13,19 +13,19 @@ class TestComponentBeamline(unittest.TestCase):
 
     def setUp(self):
         beam_start = PositionAndAngle(x=0, y=0, angle=2.5)
-        s0 = PassiveComponent(movement_strategy=VerticalMovement(0))
-        s1 = PassiveComponent(movement_strategy=VerticalMovement(1))
-        frame_overlap_mirror = ActiveComponent(movement_strategy=VerticalMovement(2))
+        s0 = PassiveComponent("s0", movement_strategy=VerticalMovement(0))
+        s1 = PassiveComponent("s1", movement_strategy=VerticalMovement(1))
+        frame_overlap_mirror = ActiveComponent("FOM", movement_strategy=VerticalMovement(2))
         frame_overlap_mirror.enabled = False
-        self.polerising_mirror = ActiveComponent(movement_strategy=VerticalMovement(3))
+        self.polerising_mirror = ActiveComponent("Poleriser", movement_strategy=VerticalMovement(3))
         self.polerising_mirror.enabled = False
-        s2 = PassiveComponent(movement_strategy=VerticalMovement(4))
-        self.ideal_sample_point = ActiveComponent(movement_strategy=VerticalMovement(5))
-        s3 = PassiveComponent(movement_strategy=VerticalMovement(6))
-        analyser = ActiveComponent(movement_strategy=VerticalMovement(7))
+        s2 = PassiveComponent("s2", movement_strategy=VerticalMovement(4))
+        self.ideal_sample_point = ActiveComponent("ideal sample point", movement_strategy=VerticalMovement(5))
+        s3 = PassiveComponent("s3", movement_strategy=VerticalMovement(6))
+        analyser = ActiveComponent("analyser", movement_strategy=VerticalMovement(7))
         analyser.enabled = False
-        s4 = PassiveComponent(movement_strategy=VerticalMovement(8))
-        detector = PassiveComponent(movement_strategy=VerticalMovement(10))
+        s4 = PassiveComponent("s4", movement_strategy=VerticalMovement(8))
+        detector = PassiveComponent("detector", movement_strategy=VerticalMovement(10))
 
         theta = Theta("theta", self.ideal_sample_point)
         self.beamline = Beamline(

@@ -11,17 +11,17 @@ from tests.utils import position_and_angle, position
 class TestComponentBeamline(unittest.TestCase):
 
     def setup_beamline(self, initial_mirror_angle, mirror_position, beam_start):
-        jaws = PassiveComponent(movement_strategy=VerticalMovement(0))
-        mirror = ActiveComponent(movement_strategy=VerticalMovement(mirror_position))
+        jaws = PassiveComponent("jaws", movement_strategy=VerticalMovement(0))
+        mirror = ActiveComponent("mirror", movement_strategy=VerticalMovement(mirror_position))
         mirror.angle = initial_mirror_angle
-        jaws3 = PassiveComponent(movement_strategy=VerticalMovement(20))
+        jaws3 = PassiveComponent("jaws3", movement_strategy=VerticalMovement(20))
         beamline = Beamline([jaws, mirror, jaws3], {})
         beamline.set_incoming_beam(beam_start)
         return beamline, mirror
 
     def test_GIVEN_beam_line_contains_one_passive_component_WHEN_beam_set_THEN_component_has_beam_out_same_as_beam_in(self):
         beam_start = PositionAndAngle(x=0, y=0, angle=0)
-        jaws = PassiveComponent(movement_strategy=VerticalMovement(2))
+        jaws = PassiveComponent("jaws", movement_strategy=VerticalMovement(2))
         beamline = Beamline([jaws], {})
         beamline.set_incoming_beam(beam_start)
 

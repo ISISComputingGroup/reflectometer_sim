@@ -14,7 +14,7 @@ class TestBeamlineParameter(unittest.TestCase):
     def test_GIVEN_theta_WHEN_set_set_point_THEN_readback_is_as_set_and_sample_hasnt_moved(self):
 
         theta_set = 10.0
-        sample = ActiveComponent(movement_strategy=VerticalMovement(0))
+        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
         mirror_pos = -100
         sample.angle = mirror_pos
         theta = Theta("theta", sample)
@@ -29,7 +29,7 @@ class TestBeamlineParameter(unittest.TestCase):
 
         theta_set = 10.0
         expected_sample_angle = -10.0
-        sample = ActiveComponent(movement_strategy=VerticalMovement(0))
+        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
         sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
         mirror_pos = -100
         sample.angle = mirror_pos
@@ -45,7 +45,7 @@ class TestBeamlineParameter(unittest.TestCase):
     def test_GIVEN_theta_and_a_set_but_no_move_WHEN_get_changed_THEN_changed_is_true(self):
 
         theta_set = 10.0
-        sample = ActiveComponent(movement_strategy=VerticalMovement(0))
+        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
         theta = Theta("theta",sample)
 
         theta.sp = theta_set
@@ -56,7 +56,7 @@ class TestBeamlineParameter(unittest.TestCase):
     def test_GIVEN_theta_and_a_set_and_move_WHEN_get_changed_THEN_changed_is_false(self):
 
         theta_set = 10.0
-        sample = ActiveComponent(movement_strategy=VerticalMovement(0))
+        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
         sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
         theta = Theta("theta",sample)
 
@@ -70,7 +70,7 @@ class TestBeamlineParameter(unittest.TestCase):
 
         angle_set = 10.0
         expected_sample_angle = -10.0
-        sample = ActiveComponent(movement_strategy=VerticalMovement(0))
+        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
         sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
         mirror_pos = -100
         sample.angle = mirror_pos
@@ -89,7 +89,7 @@ class TestBeamlineParameter(unittest.TestCase):
         beam_height = 5
         expected_height = beam_height + height_set
         jaws_x = 5
-        jaws = PassiveComponent(movement_strategy=VerticalMovement(jaws_x))
+        jaws = PassiveComponent("jaws", movement_strategy=VerticalMovement(jaws_x))
         jaws.set_incoming_beam(PositionAndAngle(0, beam_height, 0))
         tracking_height = TrackingPosition("theta",jaws)
 
@@ -105,9 +105,9 @@ class TestBeamlineParameter(unittest.TestCase):
 class TestBeamlineModes(unittest.TestCase):
 
     def test_GIVEN_unpolarised_mode_and_beamline_parameters_are_set_WHEN_move_THEN_components_move_onto_beam_line(self):
-        slit2 = PassiveComponent(VerticalMovement(x_position=10))
-        ideal_sample_point = ActiveComponent(VerticalMovement(x_position=20))
-        detector = PassiveComponent(VerticalMovement(x_position=30))
+        slit2 = PassiveComponent("s2", VerticalMovement(x_position=10))
+        ideal_sample_point = ActiveComponent("ideal_sample_point", VerticalMovement(x_position=20))
+        detector = PassiveComponent("detector", VerticalMovement(x_position=30))
         components = [slit2, ideal_sample_point, detector]
 
         parameters = [
@@ -131,9 +131,11 @@ class TestBeamlineModes(unittest.TestCase):
         assert_that(ideal_sample_point.sp_position(), is_(position(Position(20, -20))))
         assert_that(detector.sp_position(), is_(position(Position(30, -10))))
 
-
-
-
+    def test_GIVEN_a_mode_with_a_single_beamline_parameter_in_WHEN_move_THEN_beamline_parameter_is_calculated_on_move(self):
+        ideal_sample_point = ActiveComponent("ideal_sample_point", VerticalMovement(x_position=20))
+        theta = Theta("theta", ideal_sample_point)
+        beamline_mode = BeamlineMode("mode name", [theta.name], [ideal_sample_point.name])
+        beamline = Beamline([ideal_sample_point], [theta], beamline_mode)
 
 
 if __name__ == '__main__':
