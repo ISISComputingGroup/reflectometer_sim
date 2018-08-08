@@ -1,11 +1,11 @@
 import unittest
-from collections import OrderedDict
 
 from hamcrest import *
 
 from src.beamline import Beamline, BeamlineMode
 from src.components import PositionAndAngle, ActiveComponent, VerticalMovement, PassiveComponent, Position
 from src.parameters import Theta, ReflectionAngle, TrackingPosition
+from tests.data_mother import DataMother, EmptyBeamlineParameter
 from tests.utils import position
 
 
@@ -118,7 +118,7 @@ class TestBeamlineModes(unittest.TestCase):
                       #parameters["detectorAngle": TrackingAngle(detector)
         beam = PositionAndAngle(0, 0, 45)
         beamline = Beamline(components, parameters)
-        beamline.mode = BeamlineMode.NEUTRON_REFLECTION
+        beamline.mode = DataMother.BEAMLINE_MODE_NEUTRON_REFLECTION
         beamline.parameter("theta").sp = 45
         beamline.parameter("height").sp = 0
         beamline.parameter("slit2height").sp = 0
@@ -132,10 +132,116 @@ class TestBeamlineModes(unittest.TestCase):
         assert_that(detector.sp_position(), is_(position(Position(30, -10))))
 
     def test_GIVEN_a_mode_with_a_single_beamline_parameter_in_WHEN_move_THEN_beamline_parameter_is_calculated_on_move(self):
+        angle_to_set = 45.0
         ideal_sample_point = ActiveComponent("ideal_sample_point", VerticalMovement(x_position=20))
         theta = Theta("theta", ideal_sample_point)
-        beamline_mode = BeamlineMode("mode name", [theta.name], [ideal_sample_point.name])
-        beamline = Beamline([ideal_sample_point], [theta], beamline_mode)
+        beamline_mode = BeamlineMode("mode name", [theta.name])
+        beamline = Beamline([ideal_sample_point], [theta])
+        beam = PositionAndAngle(0, 0, 0)
+
+        theta.sp = angle_to_set
+        beamline.set_incoming_beam(beam)
+        beamline.mode = beamline_mode
+        beamline.move = 1
+
+        assert_that(ideal_sample_point.angle, is_(-angle_to_set))
+
+    def test_GIVEN_a_mode_without_the_beamline_parameter_in_WHEN_move_THEN_beamline_parameter_is_not_calculated_on_move(self):
+        angle_to_set = 45.0
+        ideal_sample_point = ActiveComponent("ideal_sample_point", VerticalMovement(x_position=20))
+        theta = Theta("theta", ideal_sample_point)
+        beamline_mode = BeamlineMode("mode name", [])
+        ideal_sample_point.angle = 0
+        beamline = Beamline([ideal_sample_point], [theta])
+        beam = PositionAndAngle(0, 0, 0)
+
+        theta.sp = angle_to_set
+        beamline.set_incoming_beam(beam)
+        beamline.mode = beamline_mode
+        beamline.move = 1
+
+        assert_that(ideal_sample_point.angle, is_(0))
+
+    def test_GIVEN_a_mode_with_a_two_beamline_parameter_in_WHEN_move_first_THEN_second_beamline_parameter_is_calculated_and_moved_to(self):
+        angle_to_set = 45.0
+        ideal_sample_point = ActiveComponent("ideal_sample_point", VerticalMovement(x_position=20))
+        theta = Theta("theta", ideal_sample_point)
+        super_mirror = ActiveComponent("super mirror", VerticalMovement(x_position=10))
+        smangle = ReflectionAngle("smangle", super_mirror)
+
+        beamline_mode = BeamlineMode("mode name", [theta.name, smangle.name])
+        beamline = Beamline([super_mirror, ideal_sample_point], [smangle, theta])
+        beam = PositionAndAngle(0, 0, 0)
+        theta.sp = angle_to_set
+        smangle.sp = 0
+        beamline.set_incoming_beam(beam)
+        beamline.mode = beamline_mode
+        beamline.move = 1
+
+        smangle_to_set = -10
+        smangle.sp_move = smangle_to_set
+
+        assert_that(ideal_sample_point.angle, is_(-smangle_to_set*2 - angle_to_set))
+
+
+class TestBeamlineOnMove(unittest.TestCase):
+
+    def test_GIVEN_two_beamline_parameters_with_same_name_WHEN_construct_THEN_error(self):
+        one = EmptyBeamlineParameter("same")
+        two = EmptyBeamlineParameter("same")
+
+        assert_that(calling(Beamline).with_args([], [one, two]), raises(ValueError))
+
+    def test_GIVEN_three_beamline_parameters_WHEN_move_1st_THEN_all_move(self):
+        beamline_parameters, _ = DataMother.beamline_with_3_empty_patameters()
+
+        beamline_parameters[0].move = 1
+        moves = [beamline_parameter.move_component_count for beamline_parameter in beamline_parameters]
+
+        assert_that(moves, contains(1, 1, 1), "beamline parameter move counts")
+
+    def test_GIVEN_three_beamline_parameters_WHEN_move_2nd_THEN_2nd_and_3rd_move(self):
+        beamline_parameters, _ = DataMother.beamline_with_3_empty_patameters()
+
+        beamline_parameters[1].move = 1
+        moves = [beamline_parameter.move_component_count for beamline_parameter in beamline_parameters]
+
+        assert_that(moves, contains(0, 1, 1), "beamline parameter move counts")
+
+    def test_GIVEN_three_beamline_parameters_WHEN_move_3rd_THEN_3rd_moves(self):
+        beamline_parameters, _ = DataMother.beamline_with_3_empty_patameters()
+
+        beamline_parameters[2].move = 1
+        moves = [beamline_parameter.move_component_count for beamline_parameter in beamline_parameters]
+
+        assert_that(moves, contains(0, 0, 1), "beamline parameter move counts")
+
+    def test_GIVEN_three_beamline_parameters_and_1_and_3_in_mode_WHEN_move_1st_THEN_parameters_in_the_mode_move(self):
+        beamline_parameters, beamline = DataMother.beamline_with_3_empty_patameters()
+        beamline.mode = BeamlineMode("all", [beamline_parameters[0].name, beamline_parameters[2].name])
+
+        beamline_parameters[0].move = 1
+        moves = [beamline_parameter.move_component_count for beamline_parameter in beamline_parameters]
+
+        assert_that(moves, contains(1, 0, 1), "beamline parameter move counts")
+
+    def test_GIVEN_three_beamline_parameters_and_3_in_mode_WHEN_move_1st_THEN_only_2nd_parameter_moved(self):
+        beamline_parameters, beamline = DataMother.beamline_with_3_empty_patameters()
+        beamline.mode = BeamlineMode("all", [beamline_parameters[2].name])
+
+        beamline_parameters[0].move = 1
+        moves = [beamline_parameter.move_component_count for beamline_parameter in beamline_parameters]
+
+        assert_that(moves, contains(1, 0, 0), "beamline parameter move counts")
+
+    def test_GIVEN_three_beamline_parameters_in_mode_WHEN_1st_changed_and_move_beamline_THEN_all_move(self):
+        beamline_parameters, beamline = DataMother.beamline_with_3_empty_patameters()
+
+        beamline_parameters[0].sp = 12.0
+        beamline.move = 1
+        moves = [beamline_parameter.move_component_count for beamline_parameter in beamline_parameters]
+
+        assert_that(moves, contains(1, 1, 1), "beamline parameter move counts")
 
 
 if __name__ == '__main__':

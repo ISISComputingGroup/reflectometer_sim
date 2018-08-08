@@ -4,8 +4,8 @@ from math import tan, radians
 from hamcrest import *
 
 from src.components import PositionAndAngle, PassiveComponent, ActiveComponent, VerticalMovement, Position, TiltingJaws
-from src.beamline import Beamline
-from src.parameters import Theta
+from src.beamline import Beamline, BeamlineMode
+from src.parameters import Theta, ReflectionAngle
 from tests.utils import position_and_angle, position
 
 
@@ -19,6 +19,7 @@ class TestComponentBeamline(unittest.TestCase):
         frame_overlap_mirror.enabled = False
         self.polerising_mirror = ActiveComponent("Poleriser", movement_strategy=VerticalMovement(3))
         self.polerising_mirror.enabled = False
+        self.polerising_mirror.angle = 0
         s2 = PassiveComponent("s2", movement_strategy=VerticalMovement(4))
         self.ideal_sample_point = ActiveComponent("ideal sample point", movement_strategy=VerticalMovement(5))
         s3 = PassiveComponent("s3", movement_strategy=VerticalMovement(6))
@@ -28,12 +29,18 @@ class TestComponentBeamline(unittest.TestCase):
         detector = PassiveComponent("detector", movement_strategy=VerticalMovement(10))
 
         theta = Theta("theta", self.ideal_sample_point)
+        theta.sp = 0
+        smangle = ReflectionAngle("smangle", self.polerising_mirror)
+        smangle.sp = 0
         self.beamline = Beamline(
             [s0, s1, frame_overlap_mirror, self.polerising_mirror, s2,self.ideal_sample_point, s3, analyser, s4, detector],
-            [theta])
+            [smangle, theta])
         self.beamline.set_incoming_beam(beam_start)
+        self.nr_mode = BeamlineMode("NR Mode", [theta.name])
+        self.polerised_mode = BeamlineMode("NR Mode", [smangle.name, theta.name])
 
     def test_GIVEN_beam_line_contains_multiple_component_WHEN_set_theta_THEN_angle_between_incoming_and_outgoing_beam_is_correct(self):
+        self.beamline.mode = self.nr_mode
 
         theta_set = 10.0
         self.beamline.parameter("theta").sp_move = theta_set
@@ -42,21 +49,24 @@ class TestComponentBeamline(unittest.TestCase):
         assert_that(reflection_angle, is_(theta_set * 2.0))
 
     def test_GIVEN_beam_line_contains_active_super_mirror_WHEN_set_theta_THEN_angle_between_incoming_and_outgoing_beam_is_correct(self):
-
+        self.beamline.mode = self.polerised_mode
         theta_set = 10.0
         self.polerising_mirror.enabled = True
-        self.polerising_mirror.angle = 10
+        self.beamline.parameter("smangle").sp_move = 10
+
         self.beamline.parameter("theta").sp_move = theta_set
 
         reflection_angle = self.ideal_sample_point.incoming_beam.angle - self.ideal_sample_point.get_outgoing_beam().angle
         assert_that(reflection_angle, is_(theta_set * 2.0))
 
     def test_GIVEN_beam_line_contains_active_super_mirror_WHEN_angle_set_THEN_angle_between_incoming_and_outgoing_beam_is_correct(self):
-
+        self.beamline.mode = self.polerised_mode
         theta_set = 10.0
         self.beamline.parameter("theta").sp_move = theta_set
         self.polerising_mirror.enabled = True
-        self.polerising_mirror.angle = 10
+
+
+        self.beamline.parameter("smangle").sp_move = 10
 
         reflection_angle = self.ideal_sample_point.incoming_beam.angle - self.ideal_sample_point.get_outgoing_beam().angle
         assert_that(reflection_angle, is_(theta_set * 2.0))

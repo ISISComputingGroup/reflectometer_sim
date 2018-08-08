@@ -13,6 +13,7 @@ class BeamlineParameter(object):
         self._set_point = None
         self._sp_is_changed = False
         self._name = name
+        self.after_move_listener = lambda x: None
 
     def _sp_rbv(self):
         """
@@ -50,6 +51,10 @@ class BeamlineParameter(object):
         """
         Move to the setpoint, no matter what the value passed is.
         """
+        self.move_no_callback()
+        self.after_move_listener(self)
+
+    def move_no_callback(self):
         self._move_component()
         self._sp_is_changed = False
 
