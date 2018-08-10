@@ -4,7 +4,7 @@ from hamcrest import *
 
 from src.beamline import Beamline, BeamlineMode
 from src.components import PositionAndAngle, ActiveComponent, VerticalMovement, PassiveComponent, Position
-from src.parameters import Theta, ReflectionAngle, TrackingPosition
+from src.parameters import Theta, ReflectionAngle, TrackingPosition, ComponentEnabled
 from tests.data_mother import DataMother, EmptyBeamlineParameter
 from tests.utils import position
 
@@ -101,6 +101,29 @@ class TestBeamlineParameter(unittest.TestCase):
         assert_that(jaws.sp_position().y, is_(expected_height))
         assert_that(jaws.sp_position().x, is_(jaws_x))
 
+    def test_GIVEN_component_parameter_enabled_in_mode_WHEN_parameter_moved_to_THEN_component_is_enabled(self):
+        super_mirror = ActiveComponent("super mirror", VerticalMovement(x_position=10))
+        super_mirror.enabled = False
+        sm_enabled = ComponentEnabled("smenabled", super_mirror)
+        enabled_sp = True
+
+        sm_enabled.sp = enabled_sp
+        sm_enabled.move = 1
+
+        assert_that(sm_enabled.sp_rbv, is_(enabled_sp))
+        assert_that(super_mirror.enabled, is_(enabled_sp))
+
+    def test_GIVEN_component_parameter_disabled_in_mode_WHEN_mode_set_and_beamline_moved_THEN_component_is_disabled(self):
+        super_mirror = ActiveComponent("super mirror", VerticalMovement(x_position=10))
+        super_mirror.enabled = True
+        sm_enabled = ComponentEnabled("smenabled", super_mirror)
+        enabled_sp = False
+
+        sm_enabled.sp = enabled_sp
+        sm_enabled.move = 1
+
+        assert_that(sm_enabled.sp_rbv, is_(enabled_sp))
+        assert_that(super_mirror.enabled, is_(enabled_sp))
 
 class TestBeamlineModes(unittest.TestCase):
 
