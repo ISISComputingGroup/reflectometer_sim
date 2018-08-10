@@ -142,8 +142,8 @@ class ComponentEnabled(BeamlineParameter):
         """
         Initializer.
         Args:
-            name (str): Name of the reflection angle
-            reflection_component (src.components.ActiveComponent): the active component at the reflection point
+            name (str): Name of the enabled parameter
+            component (src.components.PassiveComponent): the component to be enabled or disabled
         """
         super(ComponentEnabled, self).__init__(name, )
         self._component = component
