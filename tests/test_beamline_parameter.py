@@ -3,10 +3,10 @@ import unittest
 from hamcrest import *
 
 from src.beamline import Beamline, BeamlineMode
-from src.components import PositionAndAngle, ActiveComponent, VerticalMovement, PassiveComponent, Position
+from src.components import PositionAndAngle, ActiveComponent, PassiveComponent, Position, LinearMovement
 from src.parameters import Theta, ReflectionAngle, TrackingPosition
 from tests.data_mother import DataMother, EmptyBeamlineParameter
-from tests.utils import position
+from tests.utils import position, DEFAULT_TEST_TOLERANCE
 
 
 class TestBeamlineParameter(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestBeamlineParameter(unittest.TestCase):
     def test_GIVEN_theta_WHEN_set_set_point_THEN_readback_is_as_set_and_sample_hasnt_moved(self):
 
         theta_set = 10.0
-        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
+        sample = ActiveComponent("sample", movement_strategy=LinearMovement(0, 0, 90))
         mirror_pos = -100
         sample.angle = mirror_pos
         theta = Theta("theta", sample)
@@ -28,8 +28,8 @@ class TestBeamlineParameter(unittest.TestCase):
     def test_GIVEN_theta_WHEN_set_set_point_and_move_THEN_readback_is_as_set_and_sample_is_at_setpoint_postion(self):
 
         theta_set = 10.0
-        expected_sample_angle = -10.0
-        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
+        expected_sample_angle = 10.0
+        sample = ActiveComponent("sample", movement_strategy=LinearMovement(0, 0, 90))
         sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
         mirror_pos = -100
         sample.angle = mirror_pos
@@ -45,7 +45,7 @@ class TestBeamlineParameter(unittest.TestCase):
     def test_GIVEN_theta_and_a_set_but_no_move_WHEN_get_changed_THEN_changed_is_true(self):
 
         theta_set = 10.0
-        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
+        sample = ActiveComponent("sample", movement_strategy=LinearMovement(0, 0, 90))
         theta = Theta("theta",sample)
 
         theta.sp = theta_set
@@ -56,7 +56,7 @@ class TestBeamlineParameter(unittest.TestCase):
     def test_GIVEN_theta_and_a_set_and_move_WHEN_get_changed_THEN_changed_is_false(self):
 
         theta_set = 10.0
-        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
+        sample = ActiveComponent("sample", movement_strategy=LinearMovement(0, 0, 90))
         sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
         theta = Theta("theta",sample)
 
@@ -69,12 +69,12 @@ class TestBeamlineParameter(unittest.TestCase):
     def test_GIVEN_reflection_angle_WHEN_set_set_point_and_move_THEN_readback_is_as_set_and_sample_is_at_setpoint_postion(self):
 
         angle_set = 10.0
-        expected_sample_angle = -10.0
-        sample = ActiveComponent("sample", movement_strategy=VerticalMovement(0))
+        expected_sample_angle = 10.0
+        sample = ActiveComponent("sample", movement_strategy=LinearMovement(0, 0, 90))
         sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
         mirror_pos = -100
         sample.angle = mirror_pos
-        reflection_angle = ReflectionAngle("theta",sample)
+        reflection_angle = ReflectionAngle("theta", sample)
 
         reflection_angle.sp = angle_set
         reflection_angle.move = 1
@@ -88,9 +88,9 @@ class TestBeamlineParameter(unittest.TestCase):
         height_set = 10.0
         beam_height = 5
         expected_height = beam_height + height_set
-        jaws_x = 5
-        jaws = PassiveComponent("jaws", movement_strategy=VerticalMovement(jaws_x))
-        jaws.set_incoming_beam(PositionAndAngle(0, beam_height, 0))
+        jaws_z = 5.0
+        jaws = PassiveComponent("jaws", movement_strategy=LinearMovement(0, jaws_z, 90))
+        jaws.set_incoming_beam(PositionAndAngle(beam_height, 0, 0))
         tracking_height = TrackingPosition("theta",jaws)
 
         tracking_height.sp = height_set
@@ -99,15 +99,15 @@ class TestBeamlineParameter(unittest.TestCase):
 
         assert_that(result, is_(height_set))
         assert_that(jaws.sp_position().y, is_(expected_height))
-        assert_that(jaws.sp_position().x, is_(jaws_x))
+        assert_that(jaws.sp_position().z, is_(close_to(jaws_z, DEFAULT_TEST_TOLERANCE)))
 
 
 class TestBeamlineModes(unittest.TestCase):
 
     def test_GIVEN_unpolarised_mode_and_beamline_parameters_are_set_WHEN_move_THEN_components_move_onto_beam_line(self):
-        slit2 = PassiveComponent("s2", VerticalMovement(x_position=10))
-        ideal_sample_point = ActiveComponent("ideal_sample_point", VerticalMovement(x_position=20))
-        detector = PassiveComponent("detector", VerticalMovement(x_position=30))
+        slit2 = PassiveComponent("s2", LinearMovement(0, z_position=10, angle=90))
+        ideal_sample_point = ActiveComponent("ideal_sample_point", LinearMovement(0, z_position=20, angle=90))
+        detector = PassiveComponent("detector", LinearMovement(0, z_position=30, angle=90))
         components = [slit2, ideal_sample_point, detector]
 
         parameters = [
@@ -116,7 +116,7 @@ class TestBeamlineModes(unittest.TestCase):
             Theta("theta", ideal_sample_point),
             TrackingPosition("detectorheight", detector)]
                       #parameters["detectorAngle": TrackingAngle(detector)
-        beam = PositionAndAngle(0, 0, 45)
+        beam = PositionAndAngle(0, 0, -45)
         beamline = Beamline(components, parameters)
         beamline.mode = DataMother.BEAMLINE_MODE_NEUTRON_REFLECTION
         beamline.parameter("theta").sp = 45
@@ -127,13 +127,13 @@ class TestBeamlineModes(unittest.TestCase):
 
         beamline.move = 1
 
-        assert_that(slit2.sp_position(), is_(position(Position(10, -10))))
-        assert_that(ideal_sample_point.sp_position(), is_(position(Position(20, -20))))
-        assert_that(detector.sp_position(), is_(position(Position(30, -10))))
+        assert_that(slit2.sp_position(), is_(position(Position(-10, 10))))
+        assert_that(ideal_sample_point.sp_position(), is_(position(Position(-20, 20))))
+        assert_that(detector.sp_position(), is_(position(Position(-10, 30))))
 
     def test_GIVEN_a_mode_with_a_single_beamline_parameter_in_WHEN_move_THEN_beamline_parameter_is_calculated_on_move(self):
         angle_to_set = 45.0
-        ideal_sample_point = ActiveComponent("ideal_sample_point", VerticalMovement(x_position=20))
+        ideal_sample_point = ActiveComponent("ideal_sample_point", LinearMovement(y_position=0, z_position=20, angle=90))
         theta = Theta("theta", ideal_sample_point)
         beamline_mode = BeamlineMode("mode name", [theta.name])
         beamline = Beamline([ideal_sample_point], [theta])
@@ -144,11 +144,11 @@ class TestBeamlineModes(unittest.TestCase):
         beamline.mode = beamline_mode
         beamline.move = 1
 
-        assert_that(ideal_sample_point.angle, is_(-angle_to_set))
+        assert_that(ideal_sample_point.angle, is_(angle_to_set))
 
     def test_GIVEN_a_mode_without_the_beamline_parameter_in_WHEN_move_THEN_beamline_parameter_is_not_calculated_on_move(self):
         angle_to_set = 45.0
-        ideal_sample_point = ActiveComponent("ideal_sample_point", VerticalMovement(x_position=20))
+        ideal_sample_point = ActiveComponent("ideal_sample_point", LinearMovement(y_position=0, z_position=20, angle=90))
         theta = Theta("theta", ideal_sample_point)
         beamline_mode = BeamlineMode("mode name", [])
         ideal_sample_point.angle = 0
@@ -164,9 +164,9 @@ class TestBeamlineModes(unittest.TestCase):
 
     def test_GIVEN_a_mode_with_a_two_beamline_parameter_in_WHEN_move_first_THEN_second_beamline_parameter_is_calculated_and_moved_to(self):
         angle_to_set = 45.0
-        ideal_sample_point = ActiveComponent("ideal_sample_point", VerticalMovement(x_position=20))
+        ideal_sample_point = ActiveComponent("ideal_sample_point", LinearMovement(y_position=0, z_position=20, angle=90))
         theta = Theta("theta", ideal_sample_point)
-        super_mirror = ActiveComponent("super mirror", VerticalMovement(x_position=10))
+        super_mirror = ActiveComponent("super mirror", LinearMovement(y_position=0, z_position=10, angle=90))
         smangle = ReflectionAngle("smangle", super_mirror)
 
         beamline_mode = BeamlineMode("mode name", [theta.name, smangle.name])
@@ -181,7 +181,7 @@ class TestBeamlineModes(unittest.TestCase):
         smangle_to_set = -10
         smangle.sp_move = smangle_to_set
 
-        assert_that(ideal_sample_point.angle, is_(-smangle_to_set*2 - angle_to_set))
+        assert_that(ideal_sample_point.angle, is_(smangle_to_set*2 + angle_to_set))
 
 
 class TestBeamlineOnMove(unittest.TestCase):

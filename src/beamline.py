@@ -58,8 +58,8 @@ class Beamline(object):
         """
         The initializer.
         Args:
-            components: The collection of beamline components
-            beamline_parameters: a dictionary of parameters that characterise the beamline
+            components (list[src.components.Component]): The collection of beamline components
+            beamline_parameters (list[src.parameters.BeamlineParameter]): a dictionary of parameters that characterise the beamline
         """
         self._components = components
         self._beamline_parameters = OrderedDict()
@@ -112,7 +112,7 @@ class Beamline(object):
         Updates the beamline parameters in the current mode. If given a source in the mode start from this one instead
         of from the beginning of the beamline. If the source is not in the mode then don't update the beamline.
         Args:
-            source: source to start the update from; None start from the begining.
+            source: source to start the update from; None start from the beginning.
 
         Returns:
 
@@ -129,8 +129,7 @@ class Beamline(object):
         Args:
             key: key of parameter to return
 
-        Returns:
+        Returns (src.parameters.BeamlineParameter):
             the beamline parameter with the given key
-
         """
         return self._beamline_parameters[key]

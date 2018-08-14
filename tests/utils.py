@@ -5,6 +5,8 @@ from math import fabs
 
 from hamcrest.core.base_matcher import BaseMatcher
 
+DEFAULT_TEST_TOLERANCE = 1e-9
+
 
 class IsPositionAndAngle(BaseMatcher):
     """
@@ -16,7 +18,7 @@ class IsPositionAndAngle(BaseMatcher):
         self.expected_position_and_angle = expected_beam
         self.compare_angle = do_compare_angle
         if tolerance is None:
-            self._tolerance = 1e-9
+            self._tolerance = DEFAULT_TEST_TOLERANCE
         else:
             self._tolerance = tolerance
 
@@ -26,9 +28,9 @@ class IsPositionAndAngle(BaseMatcher):
         :param beam: beam given
         :return: True if it matches; False otherwise
         """
-        if not hasattr(beam, 'x') or not hasattr(beam, 'y') or (self.compare_angle and not hasattr(beam, 'angle')):
+        if not hasattr(beam, 'z') or not hasattr(beam, 'y') or (self.compare_angle and not hasattr(beam, 'angle')):
             return False
-        return fabs(beam.x - self.expected_position_and_angle.x) <= self._tolerance and \
+        return fabs(beam.z - self.expected_position_and_angle.z) <= self._tolerance and \
             fabs(beam.y - self.expected_position_and_angle.y) <= self._tolerance and \
                (not self.compare_angle or fabs(beam.angle - self.expected_position_and_angle.angle) <= self._tolerance)
 

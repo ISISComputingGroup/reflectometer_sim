@@ -1,50 +1,53 @@
-from src.beamline import Beamline
-from src.components import PositionAndAngle, PassiveComponent, VerticalMovement, ActiveComponent
+from src.beamline import Beamline, BeamlineMode
+from src.components import PositionAndAngle, PassiveComponent, ActiveComponent, LinearMovement
 from src.parameters import Theta
 
 
 def create_beamline():
-    beam_start = PositionAndAngle(x=0, y=0, angle=2.5)
-    s0 = PassiveComponent(movement_strategy=VerticalMovement(0))
-    s1 = PassiveComponent(movement_strategy=VerticalMovement(1))
-    frame_overlap_mirror = ActiveComponent(movement_strategy=VerticalMovement(2))
+    perp_to_floor = 90.0
+    beam_start = PositionAndAngle(y=0, z=0, angle=-2.5)
+    s0 = PassiveComponent("s0", movement_strategy=LinearMovement(0, 0, perp_to_floor))
+    s1 = PassiveComponent("s1", movement_strategy=LinearMovement(0, 1, perp_to_floor))
+    frame_overlap_mirror = ActiveComponent("FOM", movement_strategy=LinearMovement(0, 2, perp_to_floor))
     frame_overlap_mirror.enabled = False
-    polerising_mirror = ActiveComponent(movement_strategy=VerticalMovement(3))
+    polerising_mirror = ActiveComponent("Polarising mirror", movement_strategy=LinearMovement(0, 3, perp_to_floor))
     polerising_mirror.enabled = False
-    s2 = PassiveComponent(movement_strategy=VerticalMovement(4))
-    ideal_sample_point = ActiveComponent(movement_strategy=VerticalMovement(5))
-    s3 = PassiveComponent(movement_strategy=VerticalMovement(6))
-    analyser = ActiveComponent(movement_strategy=VerticalMovement(7))
+    s2 = PassiveComponent("s2", movement_strategy=LinearMovement(0, 4, perp_to_floor))
+    ideal_sample_point = ActiveComponent("Ideal Sample Point", movement_strategy=LinearMovement(0, 5, perp_to_floor))
+    s3 = PassiveComponent("s3", movement_strategy=LinearMovement(0, 6, perp_to_floor))
+    analyser = ActiveComponent("analyser", movement_strategy=LinearMovement(0, 7, perp_to_floor))
     analyser.enabled = False
-    s4 = PassiveComponent(movement_strategy=VerticalMovement(8))
-    detector = PassiveComponent(movement_strategy=VerticalMovement(10))
+    s4 = PassiveComponent("s4", movement_strategy=LinearMovement(0, 8, perp_to_floor))
+    detector = PassiveComponent("detector", movement_strategy=LinearMovement(0, 10, perp_to_floor))
 
-    theta = Theta(ideal_sample_point)
+    theta = Theta("theta", ideal_sample_point)
     beamline = Beamline(
         [s0, s1, frame_overlap_mirror, polerising_mirror, s2, ideal_sample_point, s3, analyser, s4, detector],
-        {"theta": theta})
+        [theta])
     beamline.set_incoming_beam(beam_start)
+    beamline.mode = BeamlineMode("NR", ["theta"])
 
     return beamline
 
+
 def generate_theta_movement():
     beamline = create_beamline()
-    positions_x = [component.calculate_beam_interception().x for component in beamline]
-    positions_x.insert(0, "x position")
+    positions_z = [component.calculate_beam_interception().z for component in beamline]
+    positions_z.insert(0, "z position")
     positions = [
-        positions_x,
+        positions_z,
     ]
-    for theta in range(0, 40, 2):
-        beamline.parameter("theta").sp_move(theta * 1.0)
+    for theta in range(0, 20, 1):
+        beamline.parameter("theta").sp_move = theta * 1.0
         positions_y = [component.calculate_beam_interception().y for component in beamline]
         positions_y.insert(0, "theta {}".format(theta))
         positions.append(positions_y)
 
     beamline[3].enabled = True
-    sm_angle = -10
+    sm_angle = 5
     beamline[3].angle = sm_angle
-    for theta in range(0, 40, 2):
-        beamline.parameter("theta").sp_move(theta * 1.0)
+    for theta in range(0, 20, 1):
+        beamline.parameter("theta").sp_move = theta * 1.0
         positions_y = [component.calculate_beam_interception().y for component in beamline]
         positions_y.insert(0, "theta {} sman{}".format(theta, sm_angle))
         positions.append(positions_y)

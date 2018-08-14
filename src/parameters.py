@@ -55,6 +55,9 @@ class BeamlineParameter(object):
         self.after_move_listener(self)
 
     def move_no_callback(self):
+        """
+        Move the component but don't call a callback indicating a move has been performed.
+        """
         self._move_component()
         self._sp_is_changed = False
 
@@ -81,7 +84,7 @@ class BeamlineParameter(object):
 class ReflectionAngle(BeamlineParameter):
     """
     The angle of the mirror measured from the incoming beam.
-    Angle is measure with +ve in the anti-clockwise direction (opposite of room coordinates)
+    Angle is measure with +ve in the anti-clockwise direction)
     """
 
     def __init__(self, name, reflection_component):
@@ -95,7 +98,7 @@ class ReflectionAngle(BeamlineParameter):
         self._reflection_component = reflection_component
 
     def _move_component(self):
-        self._reflection_component.angle = self._reflection_component.incoming_beam.angle - float(self._set_point)
+        self._reflection_component.angle = float(self._set_point) + self._reflection_component.incoming_beam.angle
 
 
 class Theta(ReflectionAngle):
