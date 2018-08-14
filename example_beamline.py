@@ -10,8 +10,8 @@ def create_beamline():
     s1 = PassiveComponent("s1", movement_strategy=LinearMovement(0, 1, perp_to_floor))
     frame_overlap_mirror = ActiveComponent("FOM", movement_strategy=LinearMovement(0, 2, perp_to_floor))
     frame_overlap_mirror.enabled = False
-    polerising_mirror = ActiveComponent("Polarising mirror", movement_strategy=LinearMovement(0, 3, perp_to_floor))
-    polerising_mirror.enabled = False
+    polarising_mirror = ActiveComponent("Polarising mirror", movement_strategy=LinearMovement(0, 3, perp_to_floor))
+    polarising_mirror.enabled = False
     s2 = PassiveComponent("s2", movement_strategy=LinearMovement(0, 4, perp_to_floor))
     ideal_sample_point = ActiveComponent("Ideal Sample Point", movement_strategy=LinearMovement(0, 5, perp_to_floor))
     s3 = PassiveComponent("s3", movement_strategy=LinearMovement(0, 6, perp_to_floor))
@@ -22,7 +22,7 @@ def create_beamline():
 
     theta = Theta("theta", ideal_sample_point)
     beamline = Beamline(
-        [s0, s1, frame_overlap_mirror, polerising_mirror, s2, ideal_sample_point, s3, analyser, s4, detector],
+        [s0, s1, frame_overlap_mirror, polarising_mirror, s2, ideal_sample_point, s3, analyser, s4, detector],
         [theta])
     beamline.set_incoming_beam(beam_start)
     beamline.mode = BeamlineMode("NR", ["theta"])

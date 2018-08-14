@@ -3,8 +3,9 @@ import unittest
 from hamcrest import *
 
 from src.beamline import Beamline, BeamlineMode
-from src.components import PositionAndAngle, ActiveComponent, PassiveComponent, Position, LinearMovement
-from src.parameters import Theta, ReflectionAngle, TrackingPosition
+
+from src.components import PositionAndAngle, ActiveComponent, LinearMovement, PassiveComponent, Position
+from src.parameters import Theta, ReflectionAngle, TrackingPosition, ComponentEnabled
 from tests.data_mother import DataMother, EmptyBeamlineParameter
 from tests.utils import position, DEFAULT_TEST_TOLERANCE
 
@@ -101,6 +102,29 @@ class TestBeamlineParameter(unittest.TestCase):
         assert_that(jaws.sp_position().y, is_(expected_height))
         assert_that(jaws.sp_position().z, is_(close_to(jaws_z, DEFAULT_TEST_TOLERANCE)))
 
+    def test_GIVEN_component_parameter_enabled_in_mode_WHEN_parameter_moved_to_THEN_component_is_enabled(self):
+        super_mirror = ActiveComponent("super mirror", LinearMovement(z_position=10, y_position=0, angle=90))
+        super_mirror.enabled = False
+        sm_enabled = ComponentEnabled("smenabled", super_mirror)
+        enabled_sp = True
+
+        sm_enabled.sp = enabled_sp
+        sm_enabled.move = 1
+
+        assert_that(sm_enabled.sp_rbv, is_(enabled_sp))
+        assert_that(super_mirror.enabled, is_(enabled_sp))
+
+    def test_GIVEN_component_parameter_disabled_in_mode_WHEN_parameter_moved_to_THEN_component_is_disabled(self):
+        super_mirror = ActiveComponent("super mirror", LinearMovement(z_position=10, y_position=0, angle=90))
+        super_mirror.enabled = True
+        sm_enabled = ComponentEnabled("smenabled", super_mirror)
+        enabled_sp = False
+
+        sm_enabled.sp = enabled_sp
+        sm_enabled.move = 1
+
+        assert_that(sm_enabled.sp_rbv, is_(enabled_sp))
+        assert_that(super_mirror.enabled, is_(enabled_sp))
 
 class TestBeamlineModes(unittest.TestCase):
 
@@ -182,6 +206,36 @@ class TestBeamlineModes(unittest.TestCase):
         smangle.sp_move = smangle_to_set
 
         assert_that(ideal_sample_point.angle, is_(smangle_to_set*2 + angle_to_set))
+
+    def test_GIVEN_mode_has_initial_parameter_value_WHEN_setting_mode_THEN_component_sp_updated_but_rbv_unchanged(self):
+        sm_angle = 0.0
+        sm_angle_to_set = 45.0
+        super_mirror = ActiveComponent("super mirror", LinearMovement(z_position=10, y_position=0, angle=90))
+        super_mirror.angle = sm_angle
+        smangle = ReflectionAngle("smangle", super_mirror)
+        smangle.sp = sm_angle
+        sp_inits = {smangle.name: sm_angle_to_set}
+        beamline_mode = BeamlineMode("mode name", [smangle.name], sp_inits)
+        beamline = Beamline([super_mirror], [smangle])
+
+        beamline.mode = beamline_mode
+
+        assert_that(smangle.sp_rbv, is_(sm_angle_to_set))
+        assert_that(smangle.sp_changed, is_(True))
+        assert_that(super_mirror.angle, is_(sm_angle))
+
+    def test_GIVEN_mode_has_initial_value_for_param_not_in_beamline_WHEN_setting_mode_THEN_keyerror_raised(self):
+        sm_angle = 0.0
+        super_mirror = ActiveComponent("super mirror", LinearMovement(z_position=10, y_position=0, angle=90))
+        super_mirror.angle = sm_angle
+        smangle = ReflectionAngle("smangle", super_mirror)
+        smangle.sp = sm_angle
+        sp_inits = {"nonsense name": sm_angle}
+        beamline_mode = BeamlineMode("mode name", [smangle.name], sp_inits)
+        beamline = Beamline([super_mirror], [smangle])
+
+        with self.assertRaises(KeyError):
+            beamline.mode = beamline_mode
 
 
 class TestBeamlineOnMove(unittest.TestCase):

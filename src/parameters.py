@@ -134,3 +134,22 @@ class TrackingPosition(BeamlineParameter):
 
     def _move_component(self):
         self._component.set_position_relative_to_beam(self._set_point)
+
+
+class ComponentEnabled(BeamlineParameter):
+    """
+    Parameter which sets whether a given device is enabled (i.e. parked in beam) on the beamline.
+    """
+
+    def __init__(self, name, component):
+        """
+        Initializer.
+        Args:
+            name (str): Name of the enabled parameter
+            component (src.components.PassiveComponent): the component to be enabled or disabled
+        """
+        super(ComponentEnabled, self).__init__(name, )
+        self._component = component
+
+    def _move_component(self):
+        self._component.enabled = self._set_point
