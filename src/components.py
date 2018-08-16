@@ -48,7 +48,7 @@ class LinearMovement(object):
 
     def calculate_interception(self, beam):
         """
-        Calculate the interception point of the baem and component
+        Calculate the interception point of the beam and component
         Args:
             beam(PositionAndAngle) : beam to intercept
 
@@ -112,7 +112,7 @@ class LinearMovement(object):
     def set_position_relative_to_beam(self, beam_intercept, value):
         """
         Set the position of the component relative to the beam for the given value based on its movement strategy.
-        For instance this could set the height above hte beam for a vertically moving component
+        For instance this could set the height above the beam for a vertically moving component
         Args:
             beam_intercept: the current beam position of the item
             value: the value to set away from the beam, e.g. height
@@ -237,7 +237,7 @@ class PassiveComponent(Component):
     def set_position_relative_to_beam(self, value):
         """
         Set the position of the component relative to the beam for the given value based on its movement strategy.
-        For instance this could set the height above hte beam for a vertically moving component
+        For instance this could set the height above the beam for a vertically moving component
         Args:
             value: the value to set away from the beam, e.g. height
         """
