@@ -39,21 +39,21 @@ class HeightDriver(IocDriver):
         self._height_axis.value = self._component.sp_position().y
 
 
-class TiltingJawsDriver(HeightDriver):
+class HeightAndTiltDriver(HeightDriver):
     """
     Drives a tilting jawset
     """
-    def __init__(self, component, height_axis, angle_axis):
-        super(TiltingJawsDriver, self).__init__(component, height_axis)
-        self._angle_axis = angle_axis
+    def __init__(self, component, height_axis, tilt_axis):
+        super(HeightAndTiltDriver, self).__init__(component, height_axis)
+        self._tilt_axis = tilt_axis
 
     def get_max_move_duration(self):
         vertical_move_duration = math.fabs(self._height_axis.value - self._component.sp_position().y) / self._height_axis.max_velocity
-        angular_move_duration = math.fabs(self._angle_axis.value - self._component.calculate_tilt_angle()) / self._angle_axis.max_velocity
+        angular_move_duration = math.fabs(self._tilt_axis.value - self._component.calculate_tilt_angle()) / self._tilt_axis.max_velocity
         return max(vertical_move_duration, angular_move_duration)
 
     def perform_move(self, duration):
         self._height_axis.velocity = math.fabs(self._height_axis.value - self._component.sp_position().y) / duration
-        self._angle_axis.velocity = math.fabs(self._angle_axis.value - self._component.sp_position().y) / duration
+        self._tilt_axis.velocity = math.fabs(self._tilt_axis.value - self._component.calculate_tilt_angle()) / duration
         self._height_axis.value = self._component.sp_position().y
-        self._angle_axis.value = self._component.calculate_tilt_angle()
+        self._tilt_axis.value = self._component.calculate_tilt_angle()
