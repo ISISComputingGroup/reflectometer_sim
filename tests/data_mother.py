@@ -23,7 +23,7 @@ class DataMother(object):
         ["slit2height", "height", "theta", "detectorheight"])
 
     @staticmethod
-    def beamline_with_3_empty_patameters():
+    def beamline_with_3_empty_parameters():
         """
 
         Returns: a beamline with three empty parameters, all in a mode

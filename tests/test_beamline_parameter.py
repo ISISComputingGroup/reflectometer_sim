@@ -247,7 +247,7 @@ class TestBeamlineOnMove(unittest.TestCase):
         assert_that(calling(Beamline).with_args([], [one, two]), raises(ValueError))
 
     def test_GIVEN_three_beamline_parameters_WHEN_move_1st_THEN_all_move(self):
-        beamline_parameters, _ = DataMother.beamline_with_3_empty_patameters()
+        beamline_parameters, _ = DataMother.beamline_with_3_empty_parameters()
 
         beamline_parameters[0].move = 1
         moves = [beamline_parameter.move_component_count for beamline_parameter in beamline_parameters]
@@ -255,7 +255,7 @@ class TestBeamlineOnMove(unittest.TestCase):
         assert_that(moves, contains(1, 1, 1), "beamline parameter move counts")
 
     def test_GIVEN_three_beamline_parameters_WHEN_move_2nd_THEN_2nd_and_3rd_move(self):
-        beamline_parameters, _ = DataMother.beamline_with_3_empty_patameters()
+        beamline_parameters, _ = DataMother.beamline_with_3_empty_parameters()
 
         beamline_parameters[1].move = 1
         moves = [beamline_parameter.move_component_count for beamline_parameter in beamline_parameters]
@@ -263,7 +263,7 @@ class TestBeamlineOnMove(unittest.TestCase):
         assert_that(moves, contains(0, 1, 1), "beamline parameter move counts")
 
     def test_GIVEN_three_beamline_parameters_WHEN_move_3rd_THEN_3rd_moves(self):
-        beamline_parameters, _ = DataMother.beamline_with_3_empty_patameters()
+        beamline_parameters, _ = DataMother.beamline_with_3_empty_parameters()
 
         beamline_parameters[2].move = 1
         moves = [beamline_parameter.move_component_count for beamline_parameter in beamline_parameters]
@@ -271,7 +271,7 @@ class TestBeamlineOnMove(unittest.TestCase):
         assert_that(moves, contains(0, 0, 1), "beamline parameter move counts")
 
     def test_GIVEN_three_beamline_parameters_and_1_and_3_in_mode_WHEN_move_1st_THEN_parameters_in_the_mode_move(self):
-        beamline_parameters, beamline = DataMother.beamline_with_3_empty_patameters()
+        beamline_parameters, beamline = DataMother.beamline_with_3_empty_parameters()
         beamline.mode = BeamlineMode("all", [beamline_parameters[0].name, beamline_parameters[2].name])
 
         beamline_parameters[0].move = 1
@@ -280,7 +280,7 @@ class TestBeamlineOnMove(unittest.TestCase):
         assert_that(moves, contains(1, 0, 1), "beamline parameter move counts")
 
     def test_GIVEN_three_beamline_parameters_and_3_in_mode_WHEN_move_1st_THEN_only_2nd_parameter_moved(self):
-        beamline_parameters, beamline = DataMother.beamline_with_3_empty_patameters()
+        beamline_parameters, beamline = DataMother.beamline_with_3_empty_parameters()
         beamline.mode = BeamlineMode("all", [beamline_parameters[2].name])
 
         beamline_parameters[0].move = 1
@@ -289,7 +289,7 @@ class TestBeamlineOnMove(unittest.TestCase):
         assert_that(moves, contains(1, 0, 0), "beamline parameter move counts")
 
     def test_GIVEN_three_beamline_parameters_in_mode_WHEN_1st_changed_and_move_beamline_THEN_all_move(self):
-        beamline_parameters, beamline = DataMother.beamline_with_3_empty_patameters()
+        beamline_parameters, beamline = DataMother.beamline_with_3_empty_parameters()
 
         beamline_parameters[0].sp = 12.0
         beamline.move = 1
