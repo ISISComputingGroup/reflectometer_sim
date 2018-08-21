@@ -55,15 +55,14 @@ class BeamlineMode(object):
                 parameters_in_mode.append(beamline_parameter)
         return parameters_in_mode
 
-    def _sp_inits(self):
+    @property
+    def initial_setpoints(self):
         """
-        Set point read back value
+        Set point initial values
         Returns: the set point
 
         """
         return self._sp_inits
-
-    initial_setpoints = property(_sp_inits)
 
 
 class Beamline(object):
@@ -93,15 +92,39 @@ class Beamline(object):
         self.incoming_beam = None
         self._mode = None
 
-    def _mode(self, mode):
+    @property
+    def mode(self):
+        """
+        Returns: the current modes
+        """
+        return self._mode
+
+    @mode.setter
+    def mode(self, mode):
+        """
+        Set the current mode (setting presets as expected)
+        Args:
+            mode (BeamlineMode): mode to set
+        """
         self._mode = mode
         self.init_setpoints()
 
-    def _move(self, _):
-        self.update_beamline_parameters()
+    @property
+    def move(self):
+        """
+        Move the beamline.
+        Returns: 0
+        """
+        return 0
 
-    move = property(None, _move)
-    mode = property(None, _mode)
+    @move.setter
+    def move(self, _):
+        """
+        Move to all the beamline parameters in the mode or that have changed
+        Args:
+            _: dummy can be anything
+        """
+        self.update_beamline_parameters()
 
     def __getitem__(self, item):
         """
