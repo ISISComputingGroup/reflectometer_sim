@@ -9,16 +9,21 @@ class BeamlineMode(object):
     Beamline mode definition; which components and parameters are calculated on move.
     """
 
-    def __init__(self, name, beamline_parameters_to_calculate, sp_inits={}):
+    def __init__(self, name, beamline_parameters_to_calculate, sp_inits=None):
         """
         Initialize.
         Args:
             name (str): name of the beam line mode
-            beamline_parameters_to_calculate (list[src.parameters.BeamlineParameter]): Beamline parameters in this mode which should be automatically moved to whenever a preceding parameter is changed
+            beamline_parameters_to_calculate (list[src.parameters.BeamlineParameter]): Beamline parameters in this mode
+                which should be automatically moved to whenever a preceding parameter is changed
             sp_inits: The initial beamline parameter values that should be set when switching to this mode
         """
+        self.name = name
         self._beamline_parameters_to_calculate = beamline_parameters_to_calculate
-        self._sp_inits = sp_inits
+        if sp_inits is None:
+            self._sp_inits = {}
+        else:
+            self._sp_inits = sp_inits
 
     def has_beamline_parameter(self, beamline_parameter):
         """
@@ -35,7 +40,8 @@ class BeamlineMode(object):
         parameter
         Args:
             beamline_parameters(list[src.parameters.BeamlineParameter]): the beamline parameters which maybe in the mode
-            first_parameter(src.parameters.BeamlineParameter): the parameter after which to include parameters; None for include all
+            first_parameter(src.parameters.BeamlineParameter): the parameter after which to include parameters; None for
+            include all
 
         Returns: a list of parameters after the first parameter which are in this mode
 
@@ -70,7 +76,8 @@ class Beamline(object):
         The initializer.
         Args:
             components (list[src.components.Component]): The collection of beamline components
-            beamline_parameters (list[src.parameters.BeamlineParameter]): a dictionary of parameters that characterise the beamline
+            beamline_parameters (list[src.parameters.BeamlineParameter]): a dictionary of parameters that characterise
+            the beamline
         """
         self._components = components
         self._beamline_parameters = OrderedDict()

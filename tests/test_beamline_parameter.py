@@ -12,8 +12,7 @@ from tests.utils import position, DEFAULT_TEST_TOLERANCE
 
 class TestBeamlineParameter(unittest.TestCase):
 
-    def test_GIVEN_theta_WHEN_set_set_point_THEN_readback_is_as_set_and_sample_hasnt_moved(self):
-
+    def test_GIVEN_theta_WHEN_set_set_point_THEN_sample_hasnt_moved(self):
         theta_set = 10.0
         sample = ActiveComponent("sample", movement_strategy=LinearMovement(0, 0, 90))
         mirror_pos = -100
@@ -21,9 +20,8 @@ class TestBeamlineParameter(unittest.TestCase):
         theta = Theta("theta", sample)
 
         theta.sp_no_move = theta_set
-        result = theta.sp_rbv
 
-        assert_that(result, is_(theta_set))
+        assert_that(theta.sp, is_(theta_set))
         assert_that(sample.angle, is_(mirror_pos))
 
     def test_GIVEN_theta_WHEN_set_set_point_and_move_THEN_readback_is_as_set_and_sample_is_at_setpoint_postion(self):
@@ -42,6 +40,23 @@ class TestBeamlineParameter(unittest.TestCase):
 
         assert_that(result, is_(theta_set))
         assert_that(sample.angle, is_(expected_sample_angle))
+
+    def test_GIVEN_theta_set_WHEN_set_point_set_and_move_THEN_readback_is_as_original_value_but_setpoint_is_new_value(self):
+
+        original_theta = 1.0
+        theta_set = 10.0
+        sample = ActiveComponent("sample", movement_strategy=LinearMovement(0, 0, 90))
+        sample.set_incoming_beam(PositionAndAngle(0, 0, 0))
+        mirror_pos = -100
+        sample.angle = mirror_pos
+        theta = Theta("theta", sample)
+        theta.sp = original_theta
+
+        theta.sp_no_move = theta_set
+        result = theta.sp_rbv
+
+        assert_that(result, is_(original_theta))
+        assert_that(theta.sp, is_(theta_set))
 
     def test_GIVEN_theta_and_a_set_but_no_move_WHEN_get_changed_THEN_changed_is_true(self):
 
@@ -221,7 +236,7 @@ class TestBeamlineModes(unittest.TestCase):
 
         beamline.mode = beamline_mode
 
-        assert_that(smangle.sp_rbv, is_(sm_angle_to_set))
+        assert_that(smangle.sp, is_(sm_angle_to_set))
         assert_that(smangle.sp_changed, is_(True))
         assert_that(super_mirror.angle, is_(sm_angle))
 
