@@ -14,7 +14,7 @@ class BeamlineMode(object):
         Initialize.
         Args:
             name (str): name of the beam line mode
-            beamline_parameters_to_calculate: Beamline parameters in this mode which should be automatically moved to whenever a preceding parameter is changed
+            beamline_parameters_to_calculate (list[src.parameters.BeamlineParameter]): Beamline parameters in this mode which should be automatically moved to whenever a preceding parameter is changed
             sp_inits: The initial beamline parameter values that should be set when switching to this mode
         """
         self._beamline_parameters_to_calculate = beamline_parameters_to_calculate
@@ -143,10 +143,10 @@ class Beamline(object):
     def parameter(self, key):
         """
         Args:
-            key: key of parameter to return
+            key (str): key of parameter to return
 
-        Returns (src.parameters.BeamlineParameter):
-            the beamline parameter with the given key
+        Returns:
+            src.parameters.BeamlineParameter: the beamline parameter with the given key
         """
         return self._beamline_parameters[key]
 
@@ -155,4 +155,4 @@ class Beamline(object):
         Applies the initial values set in the current beamline mode to the relevant beamline parameter setpoints.
         """
         for key, value in self._mode.initial_setpoints.iteritems():
-            self._beamline_parameters[key].sp = value
+            self._beamline_parameters[key].sp_no_move = value

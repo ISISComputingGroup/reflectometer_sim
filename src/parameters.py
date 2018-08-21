@@ -11,9 +11,11 @@ class BeamlineParameter(object):
 
     def __init__(self, name):
         self._set_point = None
+        self._set_point_rbv = None
         self._sp_is_changed = False
         self._name = name
         self.after_move_listener = lambda x: None
+
 
     def _sp_rbv(self):
         """
@@ -68,10 +70,10 @@ class BeamlineParameter(object):
         """
         return self._name
 
-    sp = property(None, _set_sp)  # Set point property (for OPI)
+    sp_no_move = property(None, _set_sp)  # Set point property (for OPI)
     sp_rbv = property(_sp_rbv)  # set point readback property
     sp_changed = property(_sp_changed)
-    sp_move = property(None, _sp_move)  # Set the set point and move to it (for scripts)
+    sp = property(None, _sp_move)  # Set the set point and move to it (for scripts)
     move = property(None, _move)
 
     def _move_component(self):
