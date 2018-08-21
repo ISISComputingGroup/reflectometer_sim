@@ -29,7 +29,7 @@ class BeamlineParameter(object):
         Args:
             value: new set point
         """
-        self._set_point = value
+        self._set_point = float(value)
         self._sp_is_changed = True
 
     def _sp_changed(self):
@@ -98,7 +98,7 @@ class ReflectionAngle(BeamlineParameter):
         self._reflection_component = reflection_component
 
     def _move_component(self):
-        self._reflection_component.angle = float(self._set_point) + self._reflection_component.incoming_beam.angle
+        self._reflection_component.set_angle_relative_to_beam(self._set_point)
 
 
 class Theta(ReflectionAngle):
