@@ -11,9 +11,15 @@ class BeamlineParameter(object):
 
     def __init__(self, name):
         self._set_point = None
+        self._set_point_rbv = None
         self._sp_is_changed = False
         self._name = name
         self.after_move_listener = lambda x: None
+        self.rbv = None
+
+    @property
+    def sp(self):
+        return self._set_point
 
     def _sp_rbv(self):
         """
@@ -21,15 +27,16 @@ class BeamlineParameter(object):
         Returns: the set point
 
         """
-        return self._set_point
+        return self._set_point_rbv
 
-    def _set_sp(self, value):
+    @sp.setter
+    def sp(self, value):
         """
         Set the set point
         Args:
             value: new set point
         """
-        self._set_point = value
+        self._set_point = float(value)
         self._sp_is_changed = True
 
     def _sp_changed(self):
@@ -44,13 +51,14 @@ class BeamlineParameter(object):
         Args:
             value:  The new value
         """
-        self._set_sp(value)
+        self.sp = value
         self._move(1)
 
     def _move(self, _):
         """
         Move to the setpoint, no matter what the value passed is.
         """
+        self._set_point_rbv = self._set_point
         self.move_no_callback()
         self.after_move_listener(self)
 
@@ -68,7 +76,6 @@ class BeamlineParameter(object):
         """
         return self._name
 
-    sp = property(None, _set_sp)  # Set point property (for OPI)
     sp_rbv = property(_sp_rbv)  # set point readback property
     sp_changed = property(_sp_changed)
     sp_move = property(None, _sp_move)  # Set the set point and move to it (for scripts)
@@ -96,9 +103,19 @@ class ReflectionAngle(BeamlineParameter):
         """
         super(ReflectionAngle, self).__init__(name, )
         self._reflection_component = reflection_component
+        self.rbv = self._reflection_component.angle
+        self._reflection_component.on_angle_set_listener(self.angle_moved_listener)
 
     def _move_component(self):
-        self._reflection_component.angle = float(self._set_point) + self._reflection_component.incoming_beam.angle
+        self._reflection_component.set_angle_relative_to_incoming_beam(self._set_point)
+
+    def angle_moved_listener(self, new_angle):
+        """
+        Listener to call if component changes its angle
+        Args:
+            new_angle: the new angle changed to
+        """
+        self.rbv = new_angle
 
 
 class Theta(ReflectionAngle):

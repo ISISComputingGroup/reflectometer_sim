@@ -12,7 +12,7 @@ from tests.utils import position, DEFAULT_TEST_TOLERANCE
 
 class TestBeamlineParameter(unittest.TestCase):
 
-    def test_GIVEN_theta_WHEN_set_set_point_THEN_readback_is_as_set_and_sample_hasnt_moved(self):
+    def test_GIVEN_theta_WHEN_set_set_point_THEN_sample_hasnt_moved(self):
 
         theta_set = 10.0
         sample = ActiveComponent("sample", movement_strategy=LinearMovement(0, 0, 90))
@@ -21,9 +21,7 @@ class TestBeamlineParameter(unittest.TestCase):
         theta = Theta("theta", sample)
 
         theta.sp = theta_set
-        result = theta.sp_rbv
 
-        assert_that(result, is_(theta_set))
         assert_that(sample.angle, is_(mirror_pos))
 
     def test_GIVEN_theta_WHEN_set_set_point_and_move_THEN_readback_is_as_set_and_sample_is_at_setpoint_postion(self):
@@ -220,7 +218,7 @@ class TestBeamlineModes(unittest.TestCase):
 
         beamline.mode = beamline_mode
 
-        assert_that(smangle.sp_rbv, is_(sm_angle_to_set))
+        assert_that(smangle.sp, is_(sm_angle_to_set))
         assert_that(smangle.sp_changed, is_(True))
         assert_that(super_mirror.angle, is_(sm_angle))
 
@@ -297,6 +295,27 @@ class TestBeamlineOnMove(unittest.TestCase):
 
         assert_that(moves, contains(1, 1, 1), "beamline parameter move counts")
 
+class TestBeamlineParameterReadback(unittest.TestCase):
+
+    def test_GIVEN_sm_at_angle_WHEN_get_readback_on_initiation_THEN_readback_is_sm_angle(self):
+        expected_angle = 20
+        sm_mirror = ActiveComponent("SM Mirror", LinearMovement(0, 1, 90))
+        sm_mirror.angle = expected_angle
+        reflection_angle = ReflectionAngle("test", sm_mirror)
+
+        result = reflection_angle.rbv
+
+        assert_that(result, is_(expected_angle))
+
+    def test_GIVEN_sm_changes_angle_WHEN_get_readback_THEN_readback_is_new_sm_angle(self):
+        expected_angle = 20
+        sm_mirror = ActiveComponent("SM Mirror", LinearMovement(0, 1, 90))
+        reflection_angle = ReflectionAngle("test", sm_mirror)
+        sm_mirror.angle = expected_angle
+
+        result = reflection_angle.rbv
+
+        assert_that(result, is_(expected_angle))
 
 if __name__ == '__main__':
     unittest.main()

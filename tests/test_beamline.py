@@ -42,7 +42,6 @@ class TestComponentBeamline(unittest.TestCase):
         for index, (result, expected_beam) in enumerate(zip(results, expected_beams)):
             assert_that(result, position_and_angle(expected_beam), "in component {}".format(index))
 
-
     def test_GIVEN_beam_line_contains_multiple_component_WHEN_angle_on_mirror_changed_THEN_beam_positions_are_all_recalculated(self):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         mirror_position = 10

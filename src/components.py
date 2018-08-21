@@ -323,6 +323,10 @@ class ActiveComponent(PassiveComponent):
         self._angle = angle
         self._beam_path_update_listener()
 
+    @property
+    def on_angle_set_listener(self, listener):
+        self.on_angle_set_listener = listener
+
     def get_outgoing_beam(self):
         """
         Returns: the outgoing beam based on the last set incoming beam and any interaction with the component
