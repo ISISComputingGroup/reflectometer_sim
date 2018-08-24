@@ -21,40 +21,60 @@ class BeamlineParameter(object):
     def sp(self):
         return self._set_point
 
-    def _sp_rbv(self):
+    @property
+    def sp_rbv(self):
         """
-        Set point read back value
-        Returns: the set point
-
+        Returns: the set point read back value, i.e. where the last move was instructed to go
         """
         return self._set_point_rbv
+
+    @property
+    def sp_no_move(self):
+        """
+        The set point of where it will move to when move is set.
+
+        Returns: Setpoint last set, i.e. when the next move on this parameter is called where it will move to
+        """
+        return self._set_point_rbv
+
+    @sp_no_move.setter
+    def sp_no_move(self, set_point):
+        """
+        The set point of where it will move to when move is set.
+        Move is not done this is mainly for use in the OPI.
+        Args:
+            set_point: the set point
+        """
+        self._set_point = float(set_point)
+        self._sp_is_changed = True
+
+    @property
+    def sp(self):
+        """
+        Move to this setpoint.
+        Returns: Setpoint last set, i.e. when the next move on this parameter is called where it will move to
+        """
+        return self._set_point
 
     @sp.setter
     def sp(self, value):
         """
-        Set the set point
+        Set the set point and move to it.
         Args:
             value: new set point
         """
-        self._set_point = float(value)
-        self._sp_is_changed = True
+        self.sp_no_move = value
+        self.move = 1
 
-    def _sp_changed(self):
+    @property
+    def move(self):
         """
-        Returns: if the set point has been changed since the last move
+        Move to the setpoint.
         """
-        return self._sp_is_changed
+        return 0
 
-    def _sp_move(self, value):
-        """
-        Set setpoint and move to that set point
-        Args:
-            value:  The new value
-        """
-        self.sp = value
-        self._move(1)
-
-    def _move(self, _):
+    @move.setter
+    def move(self, _):
         """
         Move to the setpoint, no matter what the value passed is.
         """
@@ -67,6 +87,7 @@ class BeamlineParameter(object):
         Move the component but don't call a callback indicating a move has been performed.
         """
         self._move_component()
+        self._set_point_rbv = self._set_point
         self._sp_is_changed = False
 
     @property
@@ -76,10 +97,12 @@ class BeamlineParameter(object):
         """
         return self._name
 
-    sp_rbv = property(_sp_rbv)  # set point readback property
-    sp_changed = property(_sp_changed)
-    sp_move = property(None, _sp_move)  # Set the set point and move to it (for scripts)
-    move = property(None, _move)
+    @property
+    def sp_changed(self):
+        """
+        Returns: Has set point been changed since the last move
+        """
+        return self._sp_is_changed
 
     def _move_component(self):
         """
@@ -107,15 +130,7 @@ class ReflectionAngle(BeamlineParameter):
         self._reflection_component.on_angle_set_listener(self.angle_moved_listener)
 
     def _move_component(self):
-        self._reflection_component.set_angle_relative_to_incoming_beam(self._set_point)
-
-    def angle_moved_listener(self, new_angle):
-        """
-        Listener to call if component changes its angle
-        Args:
-            new_angle: the new angle changed to
-        """
-        self.rbv = new_angle
+        self._reflection_component.set_angle_relative_to_beam(self._set_point)
 
 
 class Theta(ReflectionAngle):

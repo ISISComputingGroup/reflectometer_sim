@@ -48,7 +48,7 @@ class LinearMovement(object):
 
     def calculate_interception(self, beam):
         """
-        Calculate the interception point of the baem and component
+        Calculate the interception point of the beam and component
         Args:
             beam(PositionAndAngle) : beam to intercept
 
@@ -112,7 +112,7 @@ class LinearMovement(object):
     def set_position_relative_to_beam(self, beam_intercept, value):
         """
         Set the position of the component relative to the beam for the given value based on its movement strategy.
-        For instance this could set the height above hte beam for a vertically moving component
+        For instance this could set the height above the beam for a vertically moving component
         Args:
             beam_intercept: the current beam position of the item
             value: the value to set away from the beam, e.g. height
@@ -237,7 +237,7 @@ class PassiveComponent(Component):
     def set_position_relative_to_beam(self, value):
         """
         Set the position of the component relative to the beam for the given value based on its movement strategy.
-        For instance this could set the height above hte beam for a vertically moving component
+        For instance this could set the height above the beam for a vertically moving component
         Args:
             value: the value to set away from the beam, e.g. height
         """
@@ -305,6 +305,7 @@ class ActiveComponent(PassiveComponent):
         """
         super(ActiveComponent, self).__init__(name, movement_strategy)
         self._angle = 0
+        self._angle_change_listener = lambda: None
 
     @property
     def angle(self):
@@ -325,7 +326,7 @@ class ActiveComponent(PassiveComponent):
 
     @property
     def on_angle_set_listener(self, listener):
-        self.on_angle_set_listener = listener
+        self._angle_change_listener = listener
 
     def get_outgoing_beam(self):
         """
@@ -338,3 +339,11 @@ class ActiveComponent(PassiveComponent):
         angle_between_beam_and_component = (self._angle - self.incoming_beam.angle)
         angle = angle_between_beam_and_component * 2 + self.incoming_beam.angle
         return PositionAndAngle(target_position.y, target_position.z, angle)
+
+    def set_angle_relative_to_beam(self, angle):
+        """
+        Set the angle of the component relative to the beamline
+        Args:
+            angle: angle to set the component at
+        """
+        self.angle = angle + self.incoming_beam.angle
