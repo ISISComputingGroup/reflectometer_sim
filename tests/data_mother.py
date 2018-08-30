@@ -1,6 +1,18 @@
 from src.beamline import BeamlineMode, Beamline
 from src.parameters import BeamlineParameter
 
+STATUS_PV_FIELDS = {'type': 'enum', 'enums': ["NO", "YES"]}
+FLOAT_PV_FIELDS = {'type': 'float', 'prec': 3, 'value': 0.0}
+PARAMS_FIELDS = {"smenabled": STATUS_PV_FIELDS,
+                 "smangle": FLOAT_PV_FIELDS,
+                 "slit2pos": FLOAT_PV_FIELDS,
+                 "samplepos": FLOAT_PV_FIELDS,
+                 "theta": FLOAT_PV_FIELDS,
+                 "slit3pos": FLOAT_PV_FIELDS,
+                 "paenabled": STATUS_PV_FIELDS,
+                 "slit4pos": FLOAT_PV_FIELDS,
+                 "detpos": FLOAT_PV_FIELDS,
+                 }
 
 class EmptyBeamlineParameter(BeamlineParameter):
     """

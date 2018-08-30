@@ -86,6 +86,10 @@ class Beamline(object):
         self.incoming_beam = None
         self._mode = None
 
+    @property
+    def mode(self):
+        return self._mode
+
     def _mode(self, mode):
         self._mode = mode
         self.init_setpoints()
