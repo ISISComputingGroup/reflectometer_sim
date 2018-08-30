@@ -14,6 +14,16 @@ PARAMS_FIELDS = {"smenabled": STATUS_PV_FIELDS,
                  "detpos": FLOAT_PV_FIELDS,
                  }
 
+NR_INITS = {"smenabled": False, "smangle": 0.0}
+PNR_INITS = {"smenabled": True, "smangle": 0.5}
+
+NR_MODE = BeamlineMode("nr", PARAMS_FIELDS.keys(), NR_INITS)
+PNR_MODE = BeamlineMode("pnr", PARAMS_FIELDS.keys(), PNR_INITS)
+DISABLED_MODE = BeamlineMode("disabled", [])
+
+MODES = [NR_MODE, PNR_MODE, DISABLED_MODE]
+
+
 class EmptyBeamlineParameter(BeamlineParameter):
     """
     A Bemline Parameter Stub. Counts the number of time it is asked to move
@@ -45,6 +55,6 @@ class DataMother(object):
         two = EmptyBeamlineParameter("two")
         three = EmptyBeamlineParameter("three")
         beamline_parameters = [one, two, three]
-        beamline = Beamline([], beamline_parameters)
-        beamline.mode = BeamlineMode("all", [beamline_parameter.name for beamline_parameter in beamline_parameters])
+        beamline = Beamline([], beamline_parameters, [])
+        beamline.active_mode = BeamlineMode("all", [beamline_parameter.name for beamline_parameter in beamline_parameters])
         return beamline_parameters, beamline

@@ -33,7 +33,7 @@ class ReflectometryDriver(Driver):
         :return: The value associated to this PV
         """
         if reason.endswith("BL:MODE"):
-            return self._beamline.mode
+            return self._beamline.active_mode.name
         elif reason.endswith("SP"):
             param_name = self._pvdb.get_param_name_from_pv(reason)
             return self._beamline.parameter(param_name).sp_rbv
@@ -56,8 +56,8 @@ class ReflectometryDriver(Driver):
         elif reason == BEAMLINE_MOVE:
             self._beamline.move = 1
         elif reason == BEAMLINE_MODE:
-            # mode_to_set =
-            self._beamline.mode = value
+            mode_to_set = self._beamline.mode(value)
+            self._beamline.active_mode = mode_to_set
         else:
             # TODO stop, rbv
             pass

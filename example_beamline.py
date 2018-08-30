@@ -25,7 +25,7 @@ def create_beamline():
         [s0, s1, frame_overlap_mirror, polarising_mirror, s2, ideal_sample_point, s3, analyser, s4, detector],
         [theta])
     beamline.set_incoming_beam(beam_start)
-    beamline.mode = BeamlineMode("NR", ["theta"])
+    beamline.active_mode = BeamlineMode("NR", ["theta"])
 
     return beamline
 

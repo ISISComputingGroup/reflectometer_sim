@@ -32,13 +32,13 @@ class TestComponentBeamline(unittest.TestCase):
         smangle.sp = 0
         self.beamline = Beamline(
             [s0, s1, frame_overlap_mirror, self.polarising_mirror, s2, self.ideal_sample_point, s3, analyser, s4, detector],
-            [smangle, theta])
+            [smangle, theta], [])
         self.beamline.set_incoming_beam(beam_start)
         self.nr_mode = BeamlineMode("NR Mode", [theta.name])
         self.polarised_mode = BeamlineMode("NR Mode", [smangle.name, theta.name])
 
     def test_GIVEN_beam_line_contains_multiple_component_WHEN_set_theta_THEN_angle_between_incoming_and_outgoing_beam_is_correct(self):
-        self.beamline.mode = self.nr_mode
+        self.beamline.active_mode = self.nr_mode
 
         theta_set = 10.0
         self.beamline.parameter("theta").sp_move = theta_set
@@ -47,7 +47,7 @@ class TestComponentBeamline(unittest.TestCase):
         assert_that(reflection_angle, is_(theta_set * 2.0))
 
     def test_GIVEN_beam_line_contains_active_super_mirror_WHEN_set_theta_THEN_angle_between_incoming_and_outgoing_beam_is_correct(self):
-        self.beamline.mode = self.polarised_mode
+        self.beamline.active_mode = self.polarised_mode
         theta_set = 10.0
         self.polarising_mirror.enabled = True
         self.beamline.parameter("smangle").sp_move = 10
@@ -58,7 +58,7 @@ class TestComponentBeamline(unittest.TestCase):
         assert_that(reflection_angle, is_(theta_set * 2.0))
 
     def test_GIVEN_beam_line_contains_active_super_mirror_WHEN_angle_set_THEN_angle_between_incoming_and_outgoing_beam_is_correct(self):
-        self.beamline.mode = self.polarised_mode
+        self.beamline.active_mode = self.polarised_mode
         theta_set = 10.0
         self.beamline.parameter("theta").sp_move = theta_set
         self.polarising_mirror.enabled = True

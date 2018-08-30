@@ -7,20 +7,18 @@ BEAMLINE_MOVE = "BL:MOVE"
 
 
 class PVManager:
-    PVDB = {
-        BEAMLINE_MODE: {
-            'type': 'char',
-            'count': 1000,
-            'value': [0],
-        },
-        BEAMLINE_MOVE: {
-            'type': 'int',
-            'count': 1,
-            'value': 0,
-        },
-    }
+    def __init__(self, params_fields, modes):
+        self.PVDB = {
+            BEAMLINE_MOVE: {
+                'type': 'int',
+                'count': 1,
+                'value': 0,
+            },
+            BEAMLINE_MODE: {
+                'type': 'string',
+            }
+        }
 
-    def __init__(self, params_fields):
         self._pv_lookup = {}
         for param, fields in params_fields.iteritems():
             self._add_parameter_pvs(param, **fields)
@@ -38,9 +36,9 @@ class PVManager:
             self.PVDB[prepended_alias] = fields
             self.PVDB[prepended_alias + ":SP"] = fields
             self.PVDB[prepended_alias + ":SP:RBV"] = fields
-            self.PVDB[prepended_alias + ":MOVE"] = {'type': 'char',
-                                                    'count': 100,
-                                                    'value': [0],
+            self.PVDB[prepended_alias + ":MOVE"] = {'type': 'int',
+                                                    'count': 1,
+                                                    'value': 0,
                                                     }
             self._pv_lookup[param_alias] = param_name
         except Exception as err:
