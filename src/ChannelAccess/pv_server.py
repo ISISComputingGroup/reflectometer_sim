@@ -32,11 +32,15 @@ class ReflectometryDriver(Driver):
         :param reason: The PV that is being read.
         :return: The value associated to this PV
         """
-        if reason.endswith("BL:MODE"):
-            return self._beamline.active_mode.name
-        elif reason.endswith("SP"):
+        if reason.startswith(PARAM_PREFIX):
             param_name = self._pvdb.get_param_name_from_pv(reason)
-            return self._beamline.parameter(param_name).sp_rbv
+            param = self._beamline.parameter(param_name)
+            if reason.endswith("SP"):
+                return param.sp
+            else:
+                return param.sp_rbv
+        elif reason.endswith("BL:MODE"):
+            return self._beamline.active_mode.name
         else:
             return self.getParam(reason)
 

@@ -86,7 +86,7 @@ class PVManager:
         :return: The parameter associated to the PV
         """
         try:
-            param_alias = pv.split(":")[-2]
+            param_alias = pv.split(":")[1]
             return self._pv_lookup[param_alias]
         except KeyError:
             pass  # TODO no such pv ?
