@@ -253,6 +253,123 @@ class TestBeamlineModes(unittest.TestCase):
         with self.assertRaises(KeyError):
             beamline.active_mode = beamline_mode
 
+    def test_GIVEN_parameter_not_in_mode_and_not_changed_and_no_previous_parameter_changed_WHEN_moving_beamline_THEN_parameter_unchanged(self):
+        initial_s2_height = 0.0
+        super_mirror = ActiveComponent("sm", LinearMovement(0.0, 10, 90.0))
+        s2 = PassiveComponent("det", LinearMovement(initial_s2_height, 20, 90.0))
+
+        sm_angle = ReflectionAngle("smangle", super_mirror)
+        slit2_pos = TrackingPosition("slit2pos", s2)
+
+        empty_mode = BeamlineMode("empty", [])
+
+        beamline = Beamline([super_mirror, s2], [sm_angle,slit2_pos], [empty_mode])
+        beamline.set_incoming_beam(PositionAndAngle(0, 0, 0))
+        beamline.active_mode = empty_mode
+
+        beamline.move = 1
+
+        assert_that(s2.sp_position().y, is_(initial_s2_height))
+
+    def test_GIVEN_parameter_not_in_mode_and_not_changed_and_previous_parameter_changed_WHEN_moving_beamline_THEN_parameter_unchanged(self):
+        initial_s2_height = 0.0
+        super_mirror = ActiveComponent("sm", LinearMovement(0.0, 10, 90.0))
+        s2 = PassiveComponent("det", LinearMovement(initial_s2_height, 20, 90.0))
+
+        sm_angle = ReflectionAngle("smangle", super_mirror)
+        slit2_pos = TrackingPosition("slit2pos", s2)
+
+        mode = BeamlineMode("first_param", [sm_angle.name])
+
+        beamline = Beamline([super_mirror, s2], [sm_angle, slit2_pos], [mode])
+        beamline.set_incoming_beam(PositionAndAngle(0, 0, 0))
+        beamline.active_mode = mode
+        sm_angle.sp_no_move = 10.0
+
+        beamline.move = 1
+
+        assert_that(s2.sp_position().y, is_(initial_s2_height))
+
+    def test_GIVEN_parameter_in_mode_and_not_changed_and_no_previous_parameter_changed_WHEN_moving_beamline_THEN_parameter_unchanged(self):
+        initial_s2_height = 0.0
+        super_mirror = ActiveComponent("sm", LinearMovement(0.0, 10, 90.0))
+        s2 = PassiveComponent("det", LinearMovement(initial_s2_height, 20, 90.0))
+
+        sm_angle = ReflectionAngle("smangle", super_mirror)
+        slit2_pos = TrackingPosition("slit2pos", s2)
+
+        mode = BeamlineMode("both_params", [sm_angle.name, slit2_pos.name])
+
+        beamline = Beamline([super_mirror, s2], [sm_angle, slit2_pos], [mode])
+        beamline.set_incoming_beam(PositionAndAngle(0, 0, 0))
+        beamline.active_mode = mode
+
+        beamline.move = 1
+
+        assert_that(s2.sp_position().y, is_(initial_s2_height))
+
+    def test_GIVEN_parameter_changed_and_not_in_mode_and_no_previous_parameter_changed_WHEN_moving_beamline_THEN_parameter_moved_to_sp(self):
+        initial_s2_height = 0.0
+        target_s2_height = 1.0
+        super_mirror = ActiveComponent("sm", LinearMovement(0.0, 10, 90.0))
+        s2 = PassiveComponent("det", LinearMovement(initial_s2_height, 20, 90.0))
+
+        sm_angle = ReflectionAngle("smangle", super_mirror)
+        slit2_pos = TrackingPosition("slit2pos", s2)
+
+        empty_mode = BeamlineMode("empty", [])
+
+        beamline = Beamline([super_mirror, s2], [sm_angle, slit2_pos], [empty_mode])
+        beamline.set_incoming_beam(PositionAndAngle(0, 0, 0))
+        beamline.active_mode = empty_mode
+
+        slit2_pos.sp_no_move = target_s2_height
+        beamline.move = 1
+
+        assert_that(s2.sp_position().y, is_(target_s2_height))
+
+    def test_GIVEN_parameter_changed_and_not_in_mode_and_previous_parameter_changed_WHEN_moving_beamline_THEN_parameter_moved_to_sp(
+            self):
+        initial_s2_height = 0.0
+        target_s2_height = 1.0
+        super_mirror = ActiveComponent("sm", LinearMovement(0.0, 10, 90.0))
+        s2 = PassiveComponent("det", LinearMovement(initial_s2_height, 20, 90.0))
+
+        sm_angle = ReflectionAngle("smangle", super_mirror)
+        slit2_pos = TrackingPosition("slit2pos", s2)
+
+        empty_mode = BeamlineMode("empty", [])
+
+        beamline = Beamline([super_mirror, s2], [sm_angle, slit2_pos], [empty_mode])
+        beamline.set_incoming_beam(PositionAndAngle(0, 0, 0))
+        beamline.active_mode = empty_mode
+
+        sm_angle.sp_no_move = 20.0
+        slit2_pos.sp_no_move = target_s2_height
+        beamline.move = 1
+
+        assert_that(s2.sp_position().y, is_(target_s2_height))
+
+    def test_GIVEN_parameter_changed_and_in_mode_and_no_previous_parameter_changed_WHEN_moving_beamline_THEN_parameter_moved_to_sp(
+            self):
+        initial_s2_height = 0.0
+        target_s2_height = 1.0
+        super_mirror = ActiveComponent("sm", LinearMovement(0.0, 10, 90.0))
+        s2 = PassiveComponent("det", LinearMovement(initial_s2_height, 20, 90.0))
+
+        sm_angle = ReflectionAngle("smangle", super_mirror)
+        slit2_pos = TrackingPosition("slit2pos", s2)
+
+        mode = BeamlineMode("both_params", [sm_angle.name, slit2_pos.name])
+
+        beamline = Beamline([super_mirror, s2], [sm_angle, slit2_pos], [mode])
+        beamline.set_incoming_beam(PositionAndAngle(0, 0, 0))
+        beamline.active_mode = mode
+
+        slit2_pos.sp_no_move = target_s2_height
+        beamline.move = 1
+
+        assert_that(s2.sp_position().y, is_(target_s2_height))
 
 class TestBeamlineOnMove(unittest.TestCase):
 

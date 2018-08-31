@@ -60,7 +60,7 @@ class ReflectometryDriver(Driver):
         elif reason == BEAMLINE_MOVE:
             self._beamline.move = 1
         elif reason == BEAMLINE_MODE:
-            mode_to_set = self._beamline.mode(value)
+            mode_to_set = self._beamline.mode(value.upper())
             self._beamline.active_mode = mode_to_set
         else:
             # TODO stop, rbv

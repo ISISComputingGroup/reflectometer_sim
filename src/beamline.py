@@ -18,7 +18,7 @@ class BeamlineMode(object):
                 which should be automatically moved to whenever a preceding parameter is changed
             sp_inits: The initial beamline parameter values that should be set when switching to this mode
         """
-        self.name = name
+        self.name = name.upper()
         self._beamline_parameters_to_calculate = beamline_parameters_to_calculate
         if sp_inits is None:
             self._sp_inits = {}
