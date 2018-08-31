@@ -334,3 +334,11 @@ class ActiveComponent(PassiveComponent):
         angle_between_beam_and_component = (self._angle - self.incoming_beam.angle)
         angle = angle_between_beam_and_component * 2 + self.incoming_beam.angle
         return PositionAndAngle(target_position.y, target_position.z, angle)
+
+    def set_angle_relative_to_beam(self, angle):
+        """
+        Set the angle of the component relative to the beamline
+        Args:
+            angle: angle to set the component at
+        """
+        self.angle = angle + self.incoming_beam.angle

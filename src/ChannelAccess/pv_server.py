@@ -52,7 +52,7 @@ class ReflectometryDriver(Driver):
             if reason.endswith("MOVE"):
                 self._beamline.update_beamline_parameters(param)
             elif reason.endswith("SP"):
-                param.sp = value
+                param.sp_no_move = value
         elif reason == BEAMLINE_MOVE:
             self._beamline.move = 1
         elif reason == BEAMLINE_MODE:
