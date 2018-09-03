@@ -11,7 +11,14 @@ SET_AND_MOVE_SUFFIX = ":SETANDMOVE"
 
 
 class PVManager:
-    def __init__(self, params_fields, modes):
+    """
+    Holds reflectometry PVs and associated utilities.
+    """
+    def __init__(self, params_fields):
+        """
+        The constructor.
+        :param params_fields: The parameters for which to create PVs and their PV fields.
+        """
         self.PVDB = {
             BEAMLINE_MOVE: {
                 'type': 'int',
@@ -32,7 +39,7 @@ class PVManager:
         Adds all PVs needed for one beamline parameter to the PV database.
 
         :param param_name: The name of the beamline parameter
-        :param fields: The fields of the parameter PV (e.g type)
+        :param fields: The fields of the parameter PV
         """
         try:
             param_alias = self.create_pv_alias(param_name, "PARAM")
@@ -47,7 +54,7 @@ class PVManager:
                                                     }
             self._pv_lookup[param_alias] = param_name
         except Exception as err:
-            pass  # TODO do something sensible
+            print("Error adding parameter PV: " + err.message)
 
     # TODO get this from blockserver utilities instead
     def create_pv_alias(self, name, default_pv, limit=6):
@@ -90,8 +97,8 @@ class PVManager:
         :param pv: The PV address
         :return: The parameter associated to the PV
         """
+        param_alias = pv.split(":")[1]
         try:
-            param_alias = pv.split(":")[1]
             return self._pv_lookup[param_alias]
         except KeyError:
-            pass  # TODO no such pv ?
+            print("Error: Could not find beamline parameter for alias " + param_alias)

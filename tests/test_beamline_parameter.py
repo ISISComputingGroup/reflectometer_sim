@@ -315,7 +315,7 @@ class TestBeamlineModes(unittest.TestCase):
     def test_GIVEN_parameter_changed_and_not_in_mode_and_previous_parameter_changed_WHEN_moving_beamline_THEN_parameter_moved_to_sp(
             self):
         initial_s2_height = 0.0
-        target_s2_height = 1.0
+        target_s2_height = 11.0
         super_mirror = ActiveComponent("sm", LinearMovement(0.0, 10, 90.0))
         s2 = PassiveComponent("s2", LinearMovement(initial_s2_height, 20, 90.0))
 
@@ -329,12 +329,12 @@ class TestBeamlineModes(unittest.TestCase):
         beamline.active_mode = empty_mode
 
         sm_angle.sp_no_move = 22.5
-        slit2_pos.sp_no_move = target_s2_height
+        slit2_pos.sp_no_move = 1.0
         beamline.move = 1
 
-        assert_that(s2.sp_position().y, is_(target_s2_height))
+        assert_that(s2.sp_position().y, is_(close_to(target_s2_height, DEFAULT_TEST_TOLERANCE)))
 
-    def test_GIVEN_parameter_changed_and_in_mode_and_no_previous_parameter_changed_WHEN_moving_beamline_THEN_parameter_moved_to_sp_and_following_parameters_offset(
+    def test_GIVEN_parameter_changed_and_in_mode_and_no_previous_parameter_changed_WHEN_moving_beamline_THEN_parameter_moved_to_sp(
             self):
         initial_s2_height = 0.0
         target_s2_height = 1.0

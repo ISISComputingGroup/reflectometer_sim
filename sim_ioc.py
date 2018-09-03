@@ -19,15 +19,6 @@ PARAMS_FIELDS = {"smenabled": STATUS_PV_FIELDS,
                  "detpos": FLOAT_PV_FIELDS,
                  }
 
-NR_INITS = {"smenabled": False, "smangle": 0.0}
-PNR_INITS = {"smenabled": True, "smangle": 0.5}
-
-NR_MODE = BeamlineMode("nr", PARAMS_FIELDS.keys(), NR_INITS)
-PNR_MODE = BeamlineMode("pnr", PARAMS_FIELDS.keys(), PNR_INITS)
-DISABLED_MODE = BeamlineMode("disabled", [])
-
-MODES = [NR_MODE, PNR_MODE, DISABLED_MODE]
-
 
 def create_beamline():
     beam_angle_natural = -45
@@ -60,15 +51,6 @@ def create_beamline():
     slit3_pos = TrackingPosition("slit3pos", s3)
     slit4_pos = TrackingPosition("slit4pos", s4)
     det = TrackingPosition("detpos", point_det)
-    # Initialise to avoid exceptions
-    # sm_enabled.sp_no_move = False
-    # sm_angle.sp_no_move = 0.0
-    # slit2_pos.sp_no_move = 0.0
-    # sample_pos.sp_no_move = 0.0
-    # theta.sp_no_move = 0.0
-    # slit3_pos.sp_no_move = 0.0
-    # slit4_pos.sp_no_move = 0.0
-    # det.sp_no_move = 0.0
     params = [sm_enabled,
               sm_angle,
               slit2_pos,
@@ -78,15 +60,24 @@ def create_beamline():
               slit4_pos,
               det]
 
+    nr_inits = {"smenabled": False, "smangle": 0.0}
+    pnr_inits = {"smenabled": True, "smangle": 0.5}
+
+    nr_mode = BeamlineMode("nr", params, nr_inits)
+    pnr_mode = BeamlineMode("pnr", [param for param in params if param.name is not "smangle"], pnr_inits)
+    disabled_mode = BeamlineMode("disabled", [])
+
+    modes = [nr_mode, pnr_mode, disabled_mode]
+
     # init beamline
-    bl = Beamline(comps, params, MODES)
+    bl = Beamline(comps, params, modes)
     bl.set_incoming_beam(beam_start)
-    bl.active_mode = NR_MODE
+    bl.active_mode = nr_mode
     return bl
 
 beamline = create_beamline()
 
-pv_db = PVManager(PARAMS_FIELDS, [mode.name for mode in MODES])
+pv_db = PVManager(PARAMS_FIELDS)
 SERVER = SimpleServer()
 for pv_name in pv_db.PVDB.keys():
     print("creating pv: " + pv_name)

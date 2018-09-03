@@ -21,7 +21,6 @@ class ReflectometryDriver(Driver):
         self.write_lock = RLock()
         self.write_queue = list()
 
-        # self._beamline = BeamlineConfigReader.read("some.file")  # TODO read from config file
         self._beamline = beamline
         self._ca_server = server
         self._pvdb = pv_manager
@@ -37,8 +36,10 @@ class ReflectometryDriver(Driver):
             param = self._beamline.parameter(param_name)
             if reason.endswith(SP_SUFFIX):
                 return param.sp
-            else:
+            elif reason.endswith(SP_RBV_SUFFIX):
                 return param.sp_rbv
+            else:
+                return self.getParam(reason)  # TODO return actual RBV
         elif reason.endswith("BL:MODE"):
             return self._beamline.active_mode.name
         else:
@@ -62,10 +63,11 @@ class ReflectometryDriver(Driver):
         elif reason == BEAMLINE_MOVE:
             self._beamline.move = 1
         elif reason == BEAMLINE_MODE:
-            mode_to_set = self._beamline.mode(value.upper())
-            self._beamline.active_mode = mode_to_set
-        else:
-            # TODO stop, rbv
-            pass
+            try:
+                mode_to_set = self._beamline.mode(value.upper())
+                self._beamline.active_mode = mode_to_set
+            except KeyError:
+                print("Invalid value entered for mode.")  # TODO print list of options
+
         self.setParam(reason, value)
 
