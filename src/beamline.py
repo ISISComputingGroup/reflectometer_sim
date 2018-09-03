@@ -167,11 +167,12 @@ class Beamline(object):
 
         """
         if source is None or self._active_mode.has_beamline_parameter(source):
+            parameters = self._beamline_parameters.values()
+            parameters_in_mode = self._active_mode.get_parameters_in_mode(parameters, source)
 
-            parameters_in_mode = self._active_mode.get_parameters_in_mode(self._beamline_parameters.values(), source)
-
-            for beamline_parameter in parameters_in_mode:
-                beamline_parameter.move_no_callback()
+            for beamline_parameter in parameters:
+                if beamline_parameter in parameters_in_mode or beamline_parameter.sp_changed:
+                    beamline_parameter.move_no_callback()
 
     def parameter(self, key):
         """

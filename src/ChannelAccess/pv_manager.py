@@ -4,6 +4,10 @@ import re
 PARAM_PREFIX = "PARAM:"
 BEAMLINE_MODE = "BL:MODE"
 BEAMLINE_MOVE = "BL:MOVE"
+SP_SUFFIX = ":SP"
+SP_RBV_SUFFIX = ":SP:RBV"
+MOVE_SUFFIX = ":MOVE"
+SET_AND_MOVE_SUFFIX = ":SETANDMOVE"
 
 
 class PVManager:
@@ -34,9 +38,10 @@ class PVManager:
             param_alias = self.create_pv_alias(param_name, "PARAM")
             prepended_alias = PARAM_PREFIX + param_alias
             self.PVDB[prepended_alias] = fields
-            self.PVDB[prepended_alias + ":SP"] = fields
-            self.PVDB[prepended_alias + ":SP:RBV"] = fields
-            self.PVDB[prepended_alias + ":MOVE"] = {'type': 'int',
+            self.PVDB[prepended_alias + SP_SUFFIX] = fields
+            self.PVDB[prepended_alias + SP_RBV_SUFFIX] = fields
+            self.PVDB[prepended_alias + SET_AND_MOVE_SUFFIX] = fields
+            self.PVDB[prepended_alias + MOVE_SUFFIX] = {'type': 'int',
                                                     'count': 1,
                                                     'value': 0,
                                                     }

@@ -35,7 +35,7 @@ class ReflectometryDriver(Driver):
         if reason.startswith(PARAM_PREFIX):
             param_name = self._pvdb.get_param_name_from_pv(reason)
             param = self._beamline.parameter(param_name)
-            if reason.endswith("SP"):
+            if reason.endswith(SP_SUFFIX):
                 return param.sp
             else:
                 return param.sp_rbv
@@ -53,10 +53,12 @@ class ReflectometryDriver(Driver):
         if reason.startswith(PARAM_PREFIX):
             param_name = self._pvdb.get_param_name_from_pv(reason)
             param = self._beamline.parameter(param_name)
-            if reason.endswith("MOVE"):
-                self._beamline.update_beamline_parameters(param)
-            elif reason.endswith("SP"):
+            if reason.endswith(MOVE_SUFFIX):
+                param.move = 1
+            elif reason.endswith(SP_SUFFIX):
                 param.sp_no_move = value
+            elif reason.endswith(SET_AND_MOVE_SUFFIX):
+                param.sp = value
         elif reason == BEAMLINE_MOVE:
             self._beamline.move = 1
         elif reason == BEAMLINE_MODE:
