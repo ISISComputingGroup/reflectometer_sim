@@ -279,8 +279,8 @@ class TestBeamlineModes(unittest.TestCase):
         super_mirror = ActiveComponent("sm", LinearMovement(0.0, 10, 90.0))
         s2 = PassiveComponent("s2", LinearMovement(initial_s2_height, 20, 90.0))
 
-        sm_angle = ReflectionAngle("smangle", super_mirror)
-        slit2_pos = TrackingPosition("slit2pos", s2)
+        sm_angle = ReflectionAngle("smangle", super_mirror, True)
+        slit2_pos = TrackingPosition("slit2pos", s2, True)
 
         mode = BeamlineMode("both_params", [sm_angle.name, slit2_pos.name])
 
@@ -341,8 +341,8 @@ class TestBeamlineModes(unittest.TestCase):
         super_mirror = ActiveComponent("sm", LinearMovement(0.0, 10, 90.0))
         s2 = PassiveComponent("s2", LinearMovement(initial_s2_height, 20, 90.0))
 
-        sm_angle = ReflectionAngle("smangle", super_mirror)
-        slit2_pos = TrackingPosition("slit2pos", s2)
+        sm_angle = ReflectionAngle("smangle", super_mirror, True)
+        slit2_pos = TrackingPosition("slit2pos", s2, True)
 
         mode = BeamlineMode("both_params", [sm_angle.name, slit2_pos.name])
 

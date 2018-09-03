@@ -43,14 +43,14 @@ def create_beamline():
     comps = [s1, super_mirror, s2, sample, s3, s4, point_det]
 
     # BEAMLINE PARAMETERS
-    sm_enabled = ComponentEnabled("smenabled", super_mirror)
-    sm_angle = ReflectionAngle("smangle", super_mirror)
-    slit2_pos = TrackingPosition("slit2pos", s2)
-    sample_pos = TrackingPosition("samplepos", sample)
-    theta = Theta("theta", sample)
-    slit3_pos = TrackingPosition("slit3pos", s3)
-    slit4_pos = TrackingPosition("slit4pos", s4)
-    det = TrackingPosition("detpos", point_det)
+    sm_enabled = ComponentEnabled("smenabled", super_mirror, True)
+    sm_angle = ReflectionAngle("smangle", super_mirror, True)
+    slit2_pos = TrackingPosition("slit2pos", s2, True)
+    sample_pos = TrackingPosition("samplepos", sample, True)
+    theta = Theta("theta", sample, True)
+    slit3_pos = TrackingPosition("slit3pos", s3, True)
+    slit4_pos = TrackingPosition("slit4pos", s4, True)
+    det = TrackingPosition("detpos", point_det, True)
     params = [sm_enabled,
               sm_angle,
               slit2_pos,
