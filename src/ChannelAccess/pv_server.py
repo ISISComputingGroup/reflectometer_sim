@@ -70,4 +70,3 @@ class ReflectometryDriver(Driver):
                 print("Invalid value entered for mode.")  # TODO print list of options
 
         self.setParam(reason, value)
-

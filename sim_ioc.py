@@ -63,8 +63,8 @@ def create_beamline():
     nr_inits = {"smenabled": False, "smangle": 0.0}
     pnr_inits = {"smenabled": True, "smangle": 0.5}
 
-    nr_mode = BeamlineMode("nr", params, nr_inits)
-    pnr_mode = BeamlineMode("pnr", [param for param in params if param.name is not "smangle"], pnr_inits)
+    nr_mode = BeamlineMode("nr", [param for param in PARAMS_FIELDS.keys() if param is not "smangle"], nr_inits)
+    pnr_mode = BeamlineMode("pnr", PARAMS_FIELDS.keys(), pnr_inits)
     disabled_mode = BeamlineMode("disabled", [])
 
     modes = [nr_mode, pnr_mode, disabled_mode]

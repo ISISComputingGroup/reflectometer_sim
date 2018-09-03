@@ -14,7 +14,7 @@ class BeamlineMode(object):
         Initialize.
         Args:
             name (str): name of the beam line mode
-            beamline_parameters_to_calculate (list[src.parameters.BeamlineParameter]): Beamline parameters in this mode
+            beamline_parameters_to_calculate (list[string]): Beamline parameters in this mode
                 which should be automatically moved to whenever a preceding parameter is changed
             sp_inits: The initial beamline parameter values that should be set when switching to this mode
         """
