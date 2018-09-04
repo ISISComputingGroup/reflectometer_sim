@@ -141,7 +141,7 @@ class TestBeamlineModes(unittest.TestCase):
             TrackingPosition("detectorheight", detector)]
                       #parameters["detectorAngle": TrackingAngle(detector)
         beam = PositionAndAngle(0, 0, -45)
-        beamline = Beamline(components, parameters)
+        beamline = Beamline(components, parameters, [])
         beamline.mode = DataMother.BEAMLINE_MODE_NEUTRON_REFLECTION
         beamline.parameter("theta").sp = 45
         beamline.parameter("height").sp = 0
@@ -160,7 +160,7 @@ class TestBeamlineModes(unittest.TestCase):
         ideal_sample_point = ActiveComponent("ideal_sample_point", LinearMovement(y_position=0, z_position=20, angle=90))
         theta = Theta("theta", ideal_sample_point)
         beamline_mode = BeamlineMode("mode name", [theta.name])
-        beamline = Beamline([ideal_sample_point], [theta])
+        beamline = Beamline([ideal_sample_point], [theta], [])
         beam = PositionAndAngle(0, 0, 0)
 
         theta.sp = angle_to_set
@@ -176,7 +176,7 @@ class TestBeamlineModes(unittest.TestCase):
         theta = Theta("theta", ideal_sample_point)
         beamline_mode = BeamlineMode("mode name", [])
         ideal_sample_point.angle = 0
-        beamline = Beamline([ideal_sample_point], [theta])
+        beamline = Beamline([ideal_sample_point], [theta], [])
         beam = PositionAndAngle(0, 0, 0)
 
         theta.sp = angle_to_set
@@ -194,7 +194,7 @@ class TestBeamlineModes(unittest.TestCase):
         smangle = ReflectionAngle("smangle", super_mirror)
 
         beamline_mode = BeamlineMode("mode name", [theta.name, smangle.name])
-        beamline = Beamline([super_mirror, ideal_sample_point], [smangle, theta])
+        beamline = Beamline([super_mirror, ideal_sample_point], [smangle, theta], [])
         beam = PositionAndAngle(0, 0, 0)
         theta.sp = angle_to_set
         smangle.sp = 0
@@ -216,7 +216,7 @@ class TestBeamlineModes(unittest.TestCase):
         smangle.sp = sm_angle
         sp_inits = {smangle.name: sm_angle_to_set}
         beamline_mode = BeamlineMode("mode name", [smangle.name], sp_inits)
-        beamline = Beamline([super_mirror], [smangle])
+        beamline = Beamline([super_mirror], [smangle], [])
 
         beamline.mode = beamline_mode
 
@@ -232,7 +232,7 @@ class TestBeamlineModes(unittest.TestCase):
         smangle.sp = sm_angle
         sp_inits = {"nonsense name": sm_angle}
         beamline_mode = BeamlineMode("mode name", [smangle.name], sp_inits)
-        beamline = Beamline([super_mirror], [smangle])
+        beamline = Beamline([super_mirror], [smangle], [])
 
         with self.assertRaises(KeyError):
             beamline.mode = beamline_mode
@@ -244,7 +244,7 @@ class TestBeamlineOnMove(unittest.TestCase):
         one = EmptyBeamlineParameter("same")
         two = EmptyBeamlineParameter("same")
 
-        assert_that(calling(Beamline).with_args([], [one, two]), raises(ValueError))
+        assert_that(calling(Beamline).with_args([], [one, two], []), raises(ValueError))
 
     def test_GIVEN_three_beamline_parameters_WHEN_move_1st_THEN_all_move(self):
         beamline_parameters, _ = DataMother.beamline_with_3_empty_parameters()

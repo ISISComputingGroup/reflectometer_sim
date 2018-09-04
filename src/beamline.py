@@ -65,7 +65,7 @@ class Beamline(object):
     The collection of all beamline components.
     """
 
-    def __init__(self, components, beamline_parameters, drivers=[]):
+    def __init__(self, components, beamline_parameters, drivers):
         """
         The initializer.
         Args:
