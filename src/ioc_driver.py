@@ -3,7 +3,7 @@ import math
 
 class IocDriver(object):
     """
-    Drives an actual motor IOC
+    Drives an actual motor IOC based on a component in the beamline model.
     """
     def __init__(self, component):
         self._component = component
@@ -11,13 +11,14 @@ class IocDriver(object):
     def get_max_move_duration(self):
         """
         This should be overridden in the subclass
-        Returns: the duration of the requested move for the axis with the longest duration
+        Returns: The maximum duration of the requested move for all associated axes
         """
         raise NotImplemented()
 
     def perform_move(self, move_duration):
         """
-        This should be overridden in the subclass. Tells the driver to perform a move to the component setpoints within a given duration
+        This should be overridden in the subclass. Tells the driver to perform a move to the component set points within
+        a given duration
         :param move_duration: The duration in which to perform this move
         """
         raise NotImplemented()
@@ -30,8 +31,8 @@ class HeightDriver(IocDriver):
     def __init__(self, component, height_axis):
         """
         Constructor.
-        :param component (src.components.PassiveComponent): The component providing the values for the IOC
-        :param height_axis: The PV that this driver controls.
+        :param component (src.components.PassiveComponent): The component providing the values for the axes
+        :param height_axis (src.motor_pv_wrapper.MotorPVWrapper): The PV that this driver controls.
         """
         super(HeightDriver, self).__init__(component)
         self._height_axis = height_axis
@@ -44,14 +45,14 @@ class HeightDriver(IocDriver):
 
     def get_max_move_duration(self):
         """
-        :return: The expected duration of the current move based on the distance between the current value, setpoint value and maximum move velocity.
+        :return: The expected duration of a move based on move distance and axis speed.
         """
         return self._get_distance_height() / self._height_axis.max_velocity
 
     def perform_move(self, move_duration):
         """
         Tells the height axis to move to the setpoint within a given time frame.
-        :param duration (float): The desired duration of the move.
+        :param move_duration: The desired duration of the move.
         """
         self._height_axis.velocity = self._get_distance_height() / move_duration
         self._height_axis.value = self._component.sp_position().y
@@ -61,10 +62,15 @@ class HeightAndTiltDriver(HeightDriver):
     """
     Drives a component that has variable tilt in order to stay perpendicular to the beam in addition to variable height.
     """
-
     ANGULAR_OFFSET = 90.0
 
     def __init__(self, component, height_axis, tilt_axis):
+        """
+        Constructor.
+        :param component (src.components.TiltingJaws): The component providing the values for the axes
+        :param height_axis (src.motor_pv_wrapper.MotorPVWrapper): The PV for the height motor axis
+        :param tilt_axis (src.motor_pv_wrapper.MotorPVWrapper): The PV for the tilt motor axis
+        """
         super(HeightAndTiltDriver, self).__init__(component, height_axis)
         self._tilt_axis = tilt_axis
 
@@ -72,11 +78,18 @@ class HeightAndTiltDriver(HeightDriver):
         return self._component.calculate_tilt_angle() - self.ANGULAR_OFFSET
 
     def get_max_move_duration(self):
+        """
+        :return: The expected duration of a move based on move distance and axis speed for the slowest axis.
+        """
         vertical_move_duration = self._get_distance_height() / self._height_axis.max_velocity
         angular_move_duration = math.fabs(self._tilt_axis.value - self._target_angle_perpendicular()) / self._tilt_axis.max_velocity
         return max(vertical_move_duration, angular_move_duration)
 
     def perform_move(self, move_duration):
+        """
+        Tells the height and tilt axes to move to the setpoint within a given time frame.
+        :param move_duration: The desired duration of the move.
+        """
         self._height_axis.velocity = self._get_distance_height() / move_duration
         self._tilt_axis.velocity = math.fabs(self._tilt_axis.value - self._target_angle_perpendicular()) / move_duration
         self._height_axis.value = self._component.sp_position().y
@@ -88,15 +101,28 @@ class HeightAndAngleDriver(HeightDriver):
     Drives a component that has variable height and angle.
     """
     def __init__(self, component, height_axis, angle_axis):
+        """
+        Constructor.
+        :param component (src.components.ActiveComponent): The component providing the values for the axes
+        :param height_axis(src.motor_pv_wrapper.MotorPVWrapper): The PV for the height motor axis
+        :param angle_axis(src.motor_pv_wrapper.MotorPVWrapper): The PV for the angle motor axis
+        """
         super(HeightAndAngleDriver, self).__init__(component, height_axis)
         self._angle_axis = angle_axis
 
     def get_max_move_duration(self):
+        """
+        :return: The expected duration of a move based on move distance and axis speed for the slowest axis.
+        """
         vertical_move_duration = math.fabs(self._height_axis.value - self._component.sp_position().y) / self._height_axis.max_velocity
         angular_move_duration = math.fabs(self._angle_axis.value - self._component.angle) / self._angle_axis.max_velocity
         return max(vertical_move_duration, angular_move_duration)
 
     def perform_move(self, move_duration):
+        """
+        Tells the height and angle axes to move to the setpoint within a given time frame.
+        :param move_duration: The desired duration of the move.
+        """
         self._height_axis.velocity = math.fabs(self._height_axis.value - self._component.sp_position().y) / move_duration
         self._angle_axis.velocity = math.fabs(self._angle_axis.value - self._component.angle) / move_duration
         self._height_axis.value = self._component.sp_position().y

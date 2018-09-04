@@ -1,7 +1,7 @@
 from genie_python.genie_cachannel_wrapper import CaChannelWrapper
 
 
-class PVWrapper(object):
+class MotorPVWrapper(object):
     def __init__(self, pv_name):
         """
         Creates a wrapper around a motor PV for accessing its fields.
@@ -37,9 +37,9 @@ class PVWrapper(object):
         """
         Returns: the value of the underlying PV
         """
-        return CaChannelWrapper.get_pv_value(self._pv_name + ".VELO")
+        return CaChannelWrapper.get_pv_value(self._pv_name + ".VMAX")
 
-    @value.setter
+    @velocity.setter
     def velocity(self, value):
         """
         Writes a value to the underlying PV's VAL field.

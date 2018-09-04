@@ -61,15 +61,6 @@ class TestHeightDriver(unittest.TestCase):
         assert_that(self.height_axis.value, is_(target_position))
 
 
-    # def test_GIVEN_component_has_not_changed_WHEN_moving_axis_THEN_no_pv_value_set(self):
-    #     prop =PropertyMock(return_value=0.0)
-    #     type(self.height_axis).value = prop
-    #
-    #     self.jaws_driver.perform_move(10.0)
-    #
-    #     prop.assert_not_called()
-    #
-
 class TestHeightAndTiltDriver(unittest.TestCase):
     def setUp(self):
         start_position_height = 0.0
@@ -111,10 +102,6 @@ class TestHeightAndTiltDriver(unittest.TestCase):
         assert_that(fabs(self.height_axis.value - target_position_height) <= FLOAT_TOLERANCE)
         assert_that(fabs(self.tilt_axis.velocity - expected_velocity_tilt) <= FLOAT_TOLERANCE)
         assert_that(fabs(self.tilt_axis.value - target_position_tilt) <= FLOAT_TOLERANCE)
-
-    # TODO ???
-    def test_GIVEN_target_move_duration_too_short_WHEN_moving_axes_THEN_complain(self):
-        pass
 
 
 class TestHeightAndAngleDriver(unittest.TestCase):
