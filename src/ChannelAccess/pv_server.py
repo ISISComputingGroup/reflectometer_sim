@@ -16,10 +16,6 @@ class ReflectometryDriver(Driver):
         :param pv_manager: The manager mapping PVs to objects in the beamline.
         """
         super(ReflectometryDriver, self).__init__()
-        # Threading stuff TODO needed?
-        self.monitor_lock = RLock()
-        self.write_lock = RLock()
-        self.write_queue = list()
 
         self._beamline = beamline
         self._ca_server = server
