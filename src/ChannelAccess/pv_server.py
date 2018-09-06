@@ -60,7 +60,7 @@ class ReflectometryDriver(Driver):
             self._beamline.move = 1
         elif reason == BEAMLINE_MODE:
             try:
-                mode_to_set = self._beamline.mode(value.upper())
+                mode_to_set = self._beamline.get_mode_by_index(value)
                 self._beamline.active_mode = mode_to_set
             except KeyError:
                 print("Invalid value entered for mode.")  # TODO print list of options

@@ -14,7 +14,7 @@ class PVManager:
     """
     Holds reflectometry PVs and associated utilities.
     """
-    def __init__(self, params_fields):
+    def __init__(self, params_fields, modes):
         """
         The constructor.
         :param params_fields: The parameters for which to create PVs and their PV fields.
@@ -26,7 +26,8 @@ class PVManager:
                 'value': 0,
             },
             BEAMLINE_MODE: {
-                'type': 'string',
+                'type': 'enum',
+                'enums': modes
             }
         }
 

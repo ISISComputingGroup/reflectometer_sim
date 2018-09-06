@@ -6,7 +6,7 @@ from src.parameters import *
 from src.ChannelAccess.pv_server import ReflectometryDriver
 from src.ChannelAccess.pv_manager import PVManager
 
-STATUS_PV_FIELDS = {'type': 'enum', 'enums': ["NO", "YES"]}
+STATUS_PV_FIELDS = {'type': 'enum', 'enums': ["OUT", "IN"]}
 FLOAT_PV_FIELDS = {'type': 'float', 'prec': 3, 'value': 0.0}
 PARAMS_FIELDS = {"smenabled": STATUS_PV_FIELDS,
                  "smangle": FLOAT_PV_FIELDS,
@@ -73,11 +73,11 @@ def create_beamline():
     bl = Beamline(comps, params, modes)
     bl.set_incoming_beam(beam_start)
     bl.active_mode = nr_mode
-    return bl
+    return bl, modes
 
-beamline = create_beamline()
+beamline, modes = create_beamline()
 
-pv_db = PVManager(PARAMS_FIELDS)
+pv_db = PVManager(PARAMS_FIELDS, [mode.name for mode in modes])
 SERVER = SimpleServer()
 for pv_name in pv_db.PVDB.keys():
     print("creating pv: " + pv_name)

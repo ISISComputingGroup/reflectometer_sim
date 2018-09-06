@@ -80,7 +80,7 @@ class Beamline(object):
         """
         self._components = components
         self._beamline_parameters = OrderedDict()
-        self._modes = {}
+        self._modes = OrderedDict()
         for mode in modes:
             self._modes[mode.name] = mode
         for beamline_parameter in beamline_parameters:
@@ -183,6 +183,10 @@ class Beamline(object):
             src.parameters.BeamlineParameter: the beamline parameter with the given key
         """
         return self._beamline_parameters[key]
+
+    def get_mode_by_index(self, index):
+        key = self._modes.keys()[index]
+        return self.mode(key)
 
     def mode(self, key):
         """
