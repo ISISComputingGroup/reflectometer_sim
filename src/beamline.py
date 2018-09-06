@@ -70,19 +70,21 @@ class Beamline(object):
     The collection of all beamline components.
     """
 
-    def __init__(self, components, beamline_parameters, modes):
+    def __init__(self, components, beamline_parameters, drivers, modes):
         """
         The initializer.
         Args:
             components (list[src.components.Component]): The collection of beamline components
             beamline_parameters (list[src.parameters.BeamlineParameter]): a dictionary of parameters that characterise
             the beamline
+            drivers(list[src.ioc_driver.IocDriver]): a list of motor drivers linked to a component in the beamline
         """
         self._components = components
         self._beamline_parameters = OrderedDict()
         self._modes = OrderedDict()
         for mode in modes:
             self._modes[mode.name] = mode
+        self._drivers = drivers
         for beamline_parameter in beamline_parameters:
             if beamline_parameter.name in self._beamline_parameters:
                 raise ValueError("Beamline parameters must be uniquely named. Duplicate '{}'".format(
@@ -128,6 +130,7 @@ class Beamline(object):
             _: dummy can be anything
         """
         self.update_beamline_parameters()
+        self._move_drivers(self._get_max_move_duration())
 
     def __getitem__(self, item):
         """
@@ -204,3 +207,14 @@ class Beamline(object):
         """
         for key, value in self._active_mode.initial_setpoints.iteritems():
             self._beamline_parameters[key].sp_no_move = value
+
+    def _move_drivers(self, move_duration):
+        for driver in self._drivers:
+            driver.perform_move(move_duration)
+
+    def _get_max_move_duration(self):
+        max_move_duration = 0.0
+        for driver in self._drivers:
+            max_move_duration = max(max_move_duration, driver.get_max_move_duration())
+
+        return max_move_duration

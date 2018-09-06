@@ -23,7 +23,8 @@ def create_beamline():
     theta = Theta("theta", ideal_sample_point)
     beamline = Beamline(
         [s0, s1, frame_overlap_mirror, polarising_mirror, s2, ideal_sample_point, s3, analyser, s4, detector],
-        [theta])
+        [theta],
+        [])
     beamline.set_incoming_beam(beam_start)
     beamline.active_mode = BeamlineMode("NR", ["theta"])
 

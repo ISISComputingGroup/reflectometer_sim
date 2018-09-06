@@ -241,8 +241,10 @@ class PassiveComponent(Component):
         Args:
             value: the value to set away from the beam, e.g. height
         """
-
+        print("### MOVING " + self.name + " ###")
+        print("from: " + str(self._movement_strategy.sp_position().z) + ", " + str(self._movement_strategy.sp_position().y))
         self._movement_strategy.set_position_relative_to_beam(self.calculate_beam_interception(), value)
+        print("to:   " + str(self._movement_strategy.sp_position().z) + ", " + str(self._movement_strategy.sp_position().y))
 
     def sp_position(self):
         """

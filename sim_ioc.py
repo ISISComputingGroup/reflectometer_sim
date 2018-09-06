@@ -70,7 +70,7 @@ def create_beamline():
     modes = [nr_mode, pnr_mode, disabled_mode]
 
     # init beamline
-    bl = Beamline(comps, params, modes)
+    bl = Beamline(comps, params, [], modes)
     bl.set_incoming_beam(beam_start)
     bl.active_mode = nr_mode
     return bl, modes
