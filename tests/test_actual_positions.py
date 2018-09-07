@@ -2,7 +2,7 @@ import unittest
 
 from hamcrest import *
 
-from src.components import ActiveComponent, Component
+from src.components import ReflectingComponent, Component
 from src.movement_strategy import LinearMovement
 from src.gemoetry import PositionAndAngle
 from src.beamline import Beamline, BeamlineMode
@@ -15,15 +15,15 @@ class TestComponentBeamline(unittest.TestCase):
         beam_start = PositionAndAngle(y=0, z=0, angle=2.5)
         s0 = Component("s0", movement_strategy=LinearMovement(0, 0, 90))
         s1 = Component("s1", movement_strategy=LinearMovement(0, 1, 90))
-        frame_overlap_mirror = ActiveComponent("FOM", movement_strategy=LinearMovement(0, 2, 90))
+        frame_overlap_mirror = ReflectingComponent("FOM", movement_strategy=LinearMovement(0, 2, 90))
         frame_overlap_mirror.enabled = False
-        self.polarising_mirror = ActiveComponent("Polariser", movement_strategy=LinearMovement(0, 3, 90))
+        self.polarising_mirror = ReflectingComponent("Polariser", movement_strategy=LinearMovement(0, 3, 90))
         self.polarising_mirror.enabled = False
         self.polarising_mirror.angle = 0
         s2 = Component("s2", movement_strategy=LinearMovement(0, 4, 90))
-        self.ideal_sample_point = ActiveComponent("ideal sample point", movement_strategy=LinearMovement(0, 5, 90))
+        self.ideal_sample_point = ReflectingComponent("ideal sample point", movement_strategy=LinearMovement(0, 5, 90))
         s3 = Component("s3", movement_strategy=LinearMovement(0, 6, 90))
-        analyser = ActiveComponent("analyser", movement_strategy=LinearMovement(0, 7, 90))
+        analyser = ReflectingComponent("analyser", movement_strategy=LinearMovement(0, 7, 90))
         analyser.enabled = False
         s4 = Component("s4", movement_strategy=LinearMovement(0, 8, 90))
         detector = Component("detector", movement_strategy=LinearMovement(0, 10, 90))

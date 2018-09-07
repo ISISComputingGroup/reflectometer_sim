@@ -118,9 +118,9 @@ class TiltingJaws(Component):
         return self.get_outgoing_beam().angle + self.component_to_beam_angle
 
 
-class ActiveComponent(Component):
+class ReflectingComponent(Component):
     """
-    Active components affect the beam as it passes through them.
+    Components which reflects the beam from an reflecting surface at an angle.
     """
     def __init__(self, name, movement_strategy):
         """
@@ -129,7 +129,7 @@ class ActiveComponent(Component):
             name (str): name of the component
             movement_strategy: strategy encapsulating movement of the component
         """
-        super(ActiveComponent, self).__init__(name, movement_strategy)
+        super(ReflectingComponent, self).__init__(name, movement_strategy)
         self._angle = 0
 
     @property

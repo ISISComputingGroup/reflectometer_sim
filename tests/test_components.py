@@ -4,7 +4,7 @@ from math import tan, radians, sqrt
 from hamcrest import *
 from parameterized import parameterized
 
-from src.components import Component, ActiveComponent, TiltingJaws
+from src.components import Component, ReflectingComponent, TiltingJaws
 from src.movement_strategy import LinearMovement
 from src.gemoetry import Position, PositionAndAngle
 from tests.utils import position_and_angle, position
@@ -80,7 +80,7 @@ class TestActiveComponents(unittest.TestCase):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         expected = beam_start
 
-        mirror = ActiveComponent("component", movement_strategy=LinearMovement(0, mirror_z_position, 90))
+        mirror = ReflectingComponent("component", movement_strategy=LinearMovement(0, mirror_z_position, 90))
         mirror.angle = mirror_angle
         mirror.set_incoming_beam(beam_start)
         mirror.enabled = False
@@ -96,7 +96,7 @@ class TestActiveComponents(unittest.TestCase):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         expected = PositionAndAngle(y=0, z=mirror_z_position, angle=2 * mirror_angle)
 
-        mirror = ActiveComponent("component", movement_strategy=LinearMovement(0, mirror_z_position, 90))
+        mirror = ReflectingComponent("component", movement_strategy=LinearMovement(0, mirror_z_position, 90))
         mirror.angle = mirror_angle
         mirror.set_incoming_beam(beam_start)
 
@@ -115,7 +115,7 @@ class TestActiveComponents(unittest.TestCase):
         beam_start = PositionAndAngle(y=0, z=0, angle=beam_angle)
         expected = PositionAndAngle(y=0, z=0, angle=outgoing_angle)
 
-        mirror = ActiveComponent("component", movement_strategy=LinearMovement(0, 0, 90))
+        mirror = ReflectingComponent("component", movement_strategy=LinearMovement(0, 0, 90))
         mirror.angle = mirror_angle
         mirror.set_incoming_beam(beam_start)
 

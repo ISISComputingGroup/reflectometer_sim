@@ -3,7 +3,7 @@ import unittest
 from math import tan, radians
 from hamcrest import *
 
-from src.components import ActiveComponent, Component
+from src.components import ReflectingComponent, Component
 from src.movement_strategy import LinearMovement
 from src.gemoetry import PositionAndAngle
 from src.beamline import Beamline
@@ -14,7 +14,7 @@ class TestComponentBeamline(unittest.TestCase):
 
     def setup_beamline(self, initial_mirror_angle, mirror_position, beam_start):
         jaws = Component("jaws", movement_strategy=LinearMovement(0, 0, 90))
-        mirror = ActiveComponent("mirror", movement_strategy=LinearMovement(0, mirror_position, 90))
+        mirror = ReflectingComponent("mirror", movement_strategy=LinearMovement(0, mirror_position, 90))
         mirror.angle = initial_mirror_angle
         jaws3 = Component("jaws3", movement_strategy=LinearMovement(0, 20, 90))
         beamline = Beamline([jaws, mirror, jaws3], {})

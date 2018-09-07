@@ -1,5 +1,5 @@
 from src.beamline import Beamline, BeamlineMode
-from src.components import Component, ActiveComponent
+from src.components import Component, ReflectingComponent
 from src.movement_strategy import LinearMovement
 from src.gemoetry import PositionAndAngle
 from src.parameters import Theta
@@ -10,14 +10,14 @@ def create_beamline():
     beam_start = PositionAndAngle(y=0, z=0, angle=-2.5)
     s0 = Component("s0", movement_strategy=LinearMovement(0, 0, perp_to_floor))
     s1 = Component("s1", movement_strategy=LinearMovement(0, 1, perp_to_floor))
-    frame_overlap_mirror = ActiveComponent("FOM", movement_strategy=LinearMovement(0, 2, perp_to_floor))
+    frame_overlap_mirror = ReflectingComponent("FOM", movement_strategy=LinearMovement(0, 2, perp_to_floor))
     frame_overlap_mirror.enabled = False
-    polarising_mirror = ActiveComponent("Polarising mirror", movement_strategy=LinearMovement(0, 3, perp_to_floor))
+    polarising_mirror = ReflectingComponent("Polarising mirror", movement_strategy=LinearMovement(0, 3, perp_to_floor))
     polarising_mirror.enabled = False
     s2 = Component("s2", movement_strategy=LinearMovement(0, 4, perp_to_floor))
-    ideal_sample_point = ActiveComponent("Ideal Sample Point", movement_strategy=LinearMovement(0, 5, perp_to_floor))
+    ideal_sample_point = ReflectingComponent("Ideal Sample Point", movement_strategy=LinearMovement(0, 5, perp_to_floor))
     s3 = Component("s3", movement_strategy=LinearMovement(0, 6, perp_to_floor))
-    analyser = ActiveComponent("analyser", movement_strategy=LinearMovement(0, 7, perp_to_floor))
+    analyser = ReflectingComponent("analyser", movement_strategy=LinearMovement(0, 7, perp_to_floor))
     analyser.enabled = False
     s4 = Component("s4", movement_strategy=LinearMovement(0, 8, perp_to_floor))
     detector = Component("detector", movement_strategy=LinearMovement(0, 10, perp_to_floor))
