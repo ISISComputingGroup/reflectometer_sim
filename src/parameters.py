@@ -11,43 +11,65 @@ class BeamlineParameter(object):
 
     def __init__(self, name):
         self._set_point = None
+        self._set_point_rbv = None
         self._sp_is_changed = False
         self._name = name
         self.after_move_listener = lambda x: None
 
-    def _sp_rbv(self):
+    @property
+    def sp_rbv(self):
         """
-        Set point read back value
-        Returns: the set point
+        Returns: the set point read back value, i.e. where the last move was instructed to go
+        """
+        return self._set_point_rbv
 
+    @property
+    def sp_no_move(self):
+        """
+        The set point of where it will move to when move is set.
+
+        Returns: Setpoint last set, i.e. when the next move on this parameter is called where it will move to
         """
         return self._set_point
 
-    def _set_sp(self, value):
+    @sp_no_move.setter
+    def sp_no_move(self, set_point):
         """
-        Set the set point
+        The set point of where it will move to when move is set.
+        Move is not done this is mainly for use in the OPI.
+        Args:
+            set_point: the set point
+        """
+        self._set_point = float(set_point)
+        self._sp_is_changed = True
+
+    @property
+    def sp(self):
+        """
+        Move to this setpoint.
+        Returns: Setpoint last set, i.e. when the next move on this parameter is called where it will move to
+        """
+        return self._set_point
+
+    @sp.setter
+    def sp(self, value):
+        """
+        Set the set point and move to it.
         Args:
             value: new set point
         """
-        self._set_point = value
-        self._sp_is_changed = True
+        self.sp_no_move = value
+        self.move = 1
 
-    def _sp_changed(self):
+    @property
+    def move(self):
         """
-        Returns: if the set point has been changed since the last move
+        Move to the setpoint.
         """
-        return self._sp_is_changed
+        return 0
 
-    def _sp_move(self, value):
-        """
-        Set setpoint and move to that set point
-        Args:
-            value:  The new value
-        """
-        self._set_sp(value)
-        self._move(1)
-
-    def _move(self, _):
+    @move.setter
+    def move(self, _):
         """
         Move to the setpoint, no matter what the value passed is.
         """
@@ -59,6 +81,7 @@ class BeamlineParameter(object):
         Move the component but don't call a callback indicating a move has been performed.
         """
         self._move_component()
+        self._set_point_rbv = self._set_point
         self._sp_is_changed = False
 
     @property
@@ -68,11 +91,12 @@ class BeamlineParameter(object):
         """
         return self._name
 
-    sp = property(None, _set_sp)  # Set point property (for OPI)
-    sp_rbv = property(_sp_rbv)  # set point readback property
-    sp_changed = property(_sp_changed)
-    sp_move = property(None, _sp_move)  # Set the set point and move to it (for scripts)
-    move = property(None, _move)
+    @property
+    def sp_changed(self):
+        """
+        Returns: Has set point been changed since the last move
+        """
+        return self._sp_is_changed
 
     def _move_component(self):
         """
@@ -92,13 +116,13 @@ class ReflectionAngle(BeamlineParameter):
         Initializer.
         Args:
             name (str): Name of the reflection angle
-            reflection_component (src.components.ActiveComponent): the active component at the reflection point
+            reflection_component (src.components.ReflectingComponent): the active component at the reflection point
         """
         super(ReflectionAngle, self).__init__(name, )
         self._reflection_component = reflection_component
 
     def _move_component(self):
-        self._reflection_component.angle = float(self._set_point) + self._reflection_component.incoming_beam.angle
+        self._reflection_component.set_angle_relative_to_beam(self._set_point)
 
 
 class Theta(ReflectionAngle):
@@ -112,7 +136,7 @@ class Theta(ReflectionAngle):
         Initializer.
         Args:
             name (str): name of theta
-            ideal_sample_point (src.components.ActiveComponent): the ideal sample point active component
+            ideal_sample_point (src.components.ReflectingComponent): the ideal sample point active component
         """
         super(Theta, self).__init__(name, ideal_sample_point)
 

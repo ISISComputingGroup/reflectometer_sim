@@ -3,25 +3,27 @@ import unittest
 from math import tan, radians
 from hamcrest import *
 
-from src.components import PositionAndAngle, PassiveComponent, ActiveComponent, Position, TiltingJaws, LinearMovement
+from src.components import ReflectingComponent, Component
+from src.movement_strategy import LinearMovement
+from src.gemoetry import PositionAndAngle
 from src.beamline import Beamline
-from tests.utils import position_and_angle, position
+from tests.utils import position_and_angle
 
 
 class TestComponentBeamline(unittest.TestCase):
 
     def setup_beamline(self, initial_mirror_angle, mirror_position, beam_start):
-        jaws = PassiveComponent("jaws", movement_strategy=LinearMovement(0, 0, 90))
-        mirror = ActiveComponent("mirror", movement_strategy=LinearMovement(0, mirror_position, 90))
+        jaws = Component("jaws", movement_strategy=LinearMovement(0, 0, 90))
+        mirror = ReflectingComponent("mirror", movement_strategy=LinearMovement(0, mirror_position, 90))
         mirror.angle = initial_mirror_angle
-        jaws3 = PassiveComponent("jaws3", movement_strategy=LinearMovement(0, 20, 90))
+        jaws3 = Component("jaws3", movement_strategy=LinearMovement(0, 20, 90))
         beamline = Beamline([jaws, mirror, jaws3], {})
         beamline.set_incoming_beam(beam_start)
         return beamline, mirror
 
     def test_GIVEN_beam_line_contains_one_passive_component_WHEN_beam_set_THEN_component_has_beam_out_same_as_beam_in(self):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
-        jaws = PassiveComponent("jaws", movement_strategy=LinearMovement(0, 2, 90))
+        jaws = Component("jaws", movement_strategy=LinearMovement(0, 2, 90))
         beamline = Beamline([jaws], {})
         beamline.set_incoming_beam(beam_start)
 

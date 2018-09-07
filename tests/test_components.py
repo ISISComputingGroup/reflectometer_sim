@@ -4,16 +4,18 @@ from math import tan, radians, sqrt
 from hamcrest import *
 from parameterized import parameterized
 
-from src.components import PositionAndAngle, PassiveComponent, ActiveComponent, Position, TiltingJaws, LinearMovement
+from src.components import Component, ReflectingComponent, TiltingJaws
+from src.movement_strategy import LinearMovement
+from src.gemoetry import Position, PositionAndAngle
 from tests.utils import position_and_angle, position
 
 
-class TestPassiveComponent(unittest.TestCase):
+class TestComponent(unittest.TestCase):
 
     def test_GIVEN_jaw_input_beam_is_at_0_deg_and_z0_y0_WHEN_get_beam_out_THEN_beam_output_is_same_as_beam_input(self):
         jaws_z_position = 10
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
-        jaws = PassiveComponent("component", movement_strategy=LinearMovement(0, jaws_z_position, 90))
+        jaws = Component("component", movement_strategy=LinearMovement(0, jaws_z_position, 90))
         jaws.set_incoming_beam(beam_start)
 
         result = jaws.get_outgoing_beam()
@@ -24,7 +26,7 @@ class TestPassiveComponent(unittest.TestCase):
         jaws_z_position = 10
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         expected_position = Position(y=0, z=jaws_z_position)
-        jaws = PassiveComponent("component", movement_strategy=LinearMovement(0, jaws_z_position, 90))
+        jaws = Component("component", movement_strategy=LinearMovement(0, jaws_z_position, 90))
         jaws.set_incoming_beam(beam_start)
 
         result = jaws.calculate_beam_interception()
@@ -36,7 +38,7 @@ class TestPassiveComponent(unittest.TestCase):
         beam_angle = 60.0
         beam_start = PositionAndAngle(y=0, z=0, angle=beam_angle)
         expected_position = Position(y=tan(radians(beam_angle)) * jaws_z_position, z=jaws_z_position)
-        jaws = PassiveComponent("component", movement_strategy=LinearMovement(0, jaws_z_position, 90))
+        jaws = Component("component", movement_strategy=LinearMovement(0, jaws_z_position, 90))
         jaws.set_incoming_beam(beam_start)
 
         result = jaws.calculate_beam_interception()
@@ -51,7 +53,7 @@ class TestPassiveComponent(unittest.TestCase):
         jaws_z_position = distance_between + start_z
         beam_start = PositionAndAngle(y=start_y, z=start_z, angle=beam_angle)
         expected_position = Position(y=tan(radians(beam_angle)) * distance_between + start_y, z=jaws_z_position)
-        jaws = PassiveComponent("component", movement_strategy=LinearMovement(0, jaws_z_position, 90))
+        jaws = Component("component", movement_strategy=LinearMovement(0, jaws_z_position, 90))
         jaws.set_incoming_beam(beam_start)
 
         result = jaws.calculate_beam_interception()
@@ -78,7 +80,7 @@ class TestActiveComponents(unittest.TestCase):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         expected = beam_start
 
-        mirror = ActiveComponent("component", movement_strategy=LinearMovement(0, mirror_z_position, 90))
+        mirror = ReflectingComponent("component", movement_strategy=LinearMovement(0, mirror_z_position, 90))
         mirror.angle = mirror_angle
         mirror.set_incoming_beam(beam_start)
         mirror.enabled = False
@@ -94,7 +96,7 @@ class TestActiveComponents(unittest.TestCase):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         expected = PositionAndAngle(y=0, z=mirror_z_position, angle=2 * mirror_angle)
 
-        mirror = ActiveComponent("component", movement_strategy=LinearMovement(0, mirror_z_position, 90))
+        mirror = ReflectingComponent("component", movement_strategy=LinearMovement(0, mirror_z_position, 90))
         mirror.angle = mirror_angle
         mirror.set_incoming_beam(beam_start)
 
@@ -113,7 +115,7 @@ class TestActiveComponents(unittest.TestCase):
         beam_start = PositionAndAngle(y=0, z=0, angle=beam_angle)
         expected = PositionAndAngle(y=0, z=0, angle=outgoing_angle)
 
-        mirror = ActiveComponent("component", movement_strategy=LinearMovement(0, 0, 90))
+        mirror = ReflectingComponent("component", movement_strategy=LinearMovement(0, 0, 90))
         mirror.angle = mirror_angle
         mirror.set_incoming_beam(beam_start)
 
@@ -129,7 +131,7 @@ class TestActiveComponents(unittest.TestCase):
     #     bench_radius = 10
     #     beam_start = PositionAndAngle(z=0, y=0, angle=0)
     #     expected_position = Position(z=bench_center_of_rotation.z + bench_radius, y=0)
-    #     bench = PassiveComponent("component", movement_strategy=ArcMovement(bench_center_of_rotation, bench_radius))
+    #     bench = Component("component", movement_strategy=ArcMovement(bench_center_of_rotation, bench_radius))
     #     bench.set_incoming_beam(beam_start)
     #
     #     result = bench.calculate_beam_interception()
@@ -141,7 +143,7 @@ class TestActiveComponents(unittest.TestCase):
     #     bench_radius = 10
     #     beam_start = PositionAndAngle(z=0, y=0, angle=0)
     #     expected_position = Position(z=(bench_center_of_rotation.z + bench_radius) * sqrt(2), y=(bench_center_of_rotation.z + bench_radius) * sqrt(2))
-    #     bench = PassiveComponent("component", movement_strategy=ArcMovement(bench_center_of_rotation, bench_radius))
+    #     bench = Component("component", movement_strategy=ArcMovement(bench_center_of_rotation, bench_radius))
     #     bench.set_incoming_beam(beam_start)
     #
     #     result = bench.calculate_beam_interception()

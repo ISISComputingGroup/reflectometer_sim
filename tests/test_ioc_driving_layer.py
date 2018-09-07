@@ -3,7 +3,9 @@ from math import fabs
 from mock import MagicMock, PropertyMock
 from hamcrest import *
 
-from src.components import PassiveComponent, TiltingJaws, LinearMovement, PositionAndAngle
+from src.components import TiltingJaws, Component
+from src.movement_strategy import LinearMovement
+from src.gemoetry import PositionAndAngle
 from src.ioc_driver import HeightDriver, HeightAndTiltDriver
 
 
@@ -20,7 +22,7 @@ class TestHeightDriver(unittest.TestCase):
         self.height_axis.value = start_position
         self.height_axis.max_velocity = max_velocity
 
-        self.jaws = PassiveComponent("component", movement_strategy=LinearMovement(0.0, 10.0, 90.0))
+        self.jaws = Component("component", movement_strategy=LinearMovement(0.0, 10.0, 90.0))
         self.jaws.set_incoming_beam(PositionAndAngle(0.0, 0.0, 0.0))
 
         self.jaws_driver = HeightDriver(self.jaws, self.height_axis)
