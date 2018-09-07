@@ -20,7 +20,7 @@ class Component(object):
         """
         self.incoming_beam = None
         self._movement_strategy = movement_strategy
-        self._beam_path_update_listener = lambda: None
+        self.after_beam_path_update_listener = lambda x: None
         self._enabled = True
         self._name = name
 
@@ -39,7 +39,7 @@ class Component(object):
             enabled: The modified enabled status
         """
         self._enabled = enabled
-        self._beam_path_update_listener()
+        self.after_beam_path_update_listener(self)
 
     @property
     def name(self):
@@ -62,14 +62,6 @@ class Component(object):
         Returns (PositionAndAngle): the outgoing beam based on the incoming beam and any interaction with the component
         """
         return self.incoming_beam
-
-    def set_beam_path_update_listener(self, beam_path_update_listener):
-        """
-        Sets a beam path update listener on this component, which is called when the beam path changes
-        Args:
-            beam_path_update_listener: The listener
-        """
-        self._beam_path_update_listener = beam_path_update_listener
 
     def calculate_beam_interception(self):
         """
@@ -147,7 +139,7 @@ class ReflectingComponent(Component):
             angle: The modified angle
         """
         self._angle = angle
-        self._beam_path_update_listener()
+        self.after_beam_path_update_listener(self)
 
     def get_outgoing_beam(self):
         """
