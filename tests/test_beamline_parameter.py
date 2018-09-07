@@ -4,7 +4,9 @@ from hamcrest import *
 
 from src.beamline import Beamline, BeamlineMode
 
-from src.components import PositionAndAngle, ActiveComponent, LinearMovement, PassiveComponent, Position
+from src.components import ActiveComponent, Component
+from src.movement_strategy import LinearMovement
+from src.gemoetry import Position, PositionAndAngle
 from src.parameters import Theta, ReflectionAngle, TrackingPosition, ComponentEnabled
 from tests.data_mother import DataMother, EmptyBeamlineParameter
 from tests.utils import position, DEFAULT_TEST_TOLERANCE
@@ -105,7 +107,7 @@ class TestBeamlineParameter(unittest.TestCase):
         beam_height = 5
         expected_height = beam_height + height_set
         jaws_z = 5.0
-        jaws = PassiveComponent("jaws", movement_strategy=LinearMovement(0, jaws_z, 90))
+        jaws = Component("jaws", movement_strategy=LinearMovement(0, jaws_z, 90))
         jaws.set_incoming_beam(PositionAndAngle(beam_height, 0, 0))
         tracking_height = TrackingPosition("theta",jaws)
 
@@ -144,9 +146,9 @@ class TestBeamlineParameter(unittest.TestCase):
 class TestBeamlineModes(unittest.TestCase):
 
     def test_GIVEN_unpolarised_mode_and_beamline_parameters_are_set_WHEN_move_THEN_components_move_onto_beam_line(self):
-        slit2 = PassiveComponent("s2", LinearMovement(0, z_position=10, angle=90))
+        slit2 = Component("s2", LinearMovement(0, z_position=10, angle=90))
         ideal_sample_point = ActiveComponent("ideal_sample_point", LinearMovement(0, z_position=20, angle=90))
-        detector = PassiveComponent("detector", LinearMovement(0, z_position=30, angle=90))
+        detector = Component("detector", LinearMovement(0, z_position=30, angle=90))
         components = [slit2, ideal_sample_point, detector]
 
         parameters = [
