@@ -4,7 +4,8 @@ from math import tan, radians, sqrt
 from hamcrest import *
 from parameterized import parameterized
 
-from src.components import LinearMovement, PositionAndAngle, Position, TOLERANCE
+from src.movement_strategy import LinearMovement, ANGULAR_TOLERANCE
+from src.gemoetry import Position, PositionAndAngle
 from tests.utils import position_and_angle, position
 
 
@@ -19,7 +20,7 @@ class TestMovementIntercept(unittest.TestCase):
 
     def test_GIVEN_movement_and_beam_at_the_same_angle_within_tolerance_WHEN_get_intercept_THEN_raises_calc_error(self):
         angle = 12.3
-        tolerance = TOLERANCE
+        tolerance = ANGULAR_TOLERANCE
         movement = LinearMovement(1, 1, angle + tolerance * 0.99)
         beam = PositionAndAngle(0, 0, angle)
 
@@ -27,7 +28,7 @@ class TestMovementIntercept(unittest.TestCase):
 
     def test_GIVEN_movement_and_beam_at_the_opposite_angles_within_tolerance_WHEN_get_intercept_THEN_raises_calc_error(self):
         angle = 12.3 + 180.0
-        tolerance = TOLERANCE
+        tolerance = ANGULAR_TOLERANCE
         movement = LinearMovement(1, 1, angle + tolerance * 0.99)
         beam = PositionAndAngle(0, 0, angle)
 

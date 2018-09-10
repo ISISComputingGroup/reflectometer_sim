@@ -90,7 +90,8 @@ class Beamline(object):
             self._beamline_parameters[beamline_parameter.name] = beamline_parameter
             beamline_parameter.after_move_listener = self.update_beamline_parameters
 
-        [component.set_beam_path_update_listener(self.update_beam_path) for component in components]
+        for component in components:
+            component.after_beam_path_update_listener = self.update_beam_path
 
         self.incoming_beam = None
         self._active_mode = None
@@ -145,11 +146,13 @@ class Beamline(object):
             incoming_beam: incoming beam
         """
         self.incoming_beam = incoming_beam
-        self.update_beam_path()
+        self.update_beam_path(None)
 
-    def update_beam_path(self):
+    def update_beam_path(self, src):
         """
         Updates the beam path for all components
+        Args:
+            src: source component of the update or None for not from component change
         """
         outgoing = self.incoming_beam
         for component in self._components:
