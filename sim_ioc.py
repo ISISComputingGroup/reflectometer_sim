@@ -14,7 +14,6 @@ PARAMS_FIELDS = {"smenabled": STATUS_PV_FIELDS,
                  "samplepos": FLOAT_PV_FIELDS,
                  "theta": FLOAT_PV_FIELDS,
                  "slit3pos": FLOAT_PV_FIELDS,
-                 "paenabled": STATUS_PV_FIELDS,
                  "slit4pos": FLOAT_PV_FIELDS,
                  "detpos": FLOAT_PV_FIELDS,
                  }

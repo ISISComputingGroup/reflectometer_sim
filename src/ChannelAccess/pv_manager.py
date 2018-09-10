@@ -7,6 +7,7 @@ BEAMLINE_MOVE = "BL:MOVE"
 SP_SUFFIX = ":SP"
 SP_RBV_SUFFIX = ":SP:RBV"
 MOVE_SUFFIX = ":MOVE"
+CHANGED_SUFFIX = ":CHANGED"
 SET_AND_MOVE_SUFFIX = ":SETANDMOVE"
 
 
@@ -49,10 +50,12 @@ class PVManager:
             self.PVDB[prepended_alias + SP_SUFFIX] = fields
             self.PVDB[prepended_alias + SP_RBV_SUFFIX] = fields
             self.PVDB[prepended_alias + SET_AND_MOVE_SUFFIX] = fields
+            self.PVDB[prepended_alias + CHANGED_SUFFIX] = {'type': 'enum',
+                                                           'enums': ["NO", "YES"]}
             self.PVDB[prepended_alias + MOVE_SUFFIX] = {'type': 'int',
-                                                    'count': 1,
-                                                    'value': 0,
-                                                    }
+                                                        'count': 1,
+                                                        'value': 0,
+                                                        }
             self._pv_lookup[param_alias] = param_name
         except Exception as err:
             print("Error adding parameter PV: " + err.message)
@@ -103,3 +106,9 @@ class PVManager:
             return self._pv_lookup[param_alias]
         except KeyError:
             print("Error: Could not find beamline parameter for alias " + param_alias)
+
+    def parameter_pvs(self):
+        """
+        :return: The list of PVs of all beamline parameters.
+        """
+        return [PARAM_PREFIX + pv_alias for pv_alias in self._pv_lookup.keys()]

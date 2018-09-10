@@ -19,7 +19,7 @@ class ReflectometryDriver(Driver):
 
         self._beamline = beamline
         self._ca_server = server
-        self._pvdb = pv_manager
+        self._pv_manager = pv_manager
 
     def read(self, reason):
         """
@@ -28,12 +28,14 @@ class ReflectometryDriver(Driver):
         :return: The value associated to this PV
         """
         if reason.startswith(PARAM_PREFIX):
-            param_name = self._pvdb.get_param_name_from_pv(reason)
+            param_name = self._pv_manager.get_param_name_from_pv(reason)
             param = self._beamline.parameter(param_name)
             if reason.endswith(SP_SUFFIX):
                 return param.sp
             elif reason.endswith(SP_RBV_SUFFIX):
                 return param.sp_rbv
+            elif reason.endswith(CHANGED_SUFFIX):
+                return param.sp_changed
             else:
                 return self.getParam(reason)  # TODO return actual RBV
         elif reason.endswith("BL:MODE"):
@@ -47,13 +49,15 @@ class ReflectometryDriver(Driver):
         :param reason: The PV that is being written to.
         :param value: The value being written to the PV
         """
+        status = True
         if reason.startswith(PARAM_PREFIX):
-            param_name = self._pvdb.get_param_name_from_pv(reason)
+            param_name = self._pv_manager.get_param_name_from_pv(reason)
             param = self._beamline.parameter(param_name)
             if reason.endswith(MOVE_SUFFIX):
                 param.move = 1
             elif reason.endswith(SP_SUFFIX):
                 param.sp_no_move = value
+                self.setParam(reason+":RBV", param.sp_rbv)
             elif reason.endswith(SET_AND_MOVE_SUFFIX):
                 param.sp = value
         elif reason == BEAMLINE_MOVE:
@@ -64,5 +68,29 @@ class ReflectometryDriver(Driver):
                 self._beamline.active_mode = mode_to_set
             except KeyError:
                 print("Invalid value entered for mode.")  # TODO print list of options
+                status = False
 
-        self.setParam(reason, value)
+        if status:
+            self.setParam(reason, value)
+            self.update_monitors()
+        return status
+
+    def update_monitors(self):
+        """
+        Updates the PV values for each parameter so that changes are visible to monitors.
+        """
+        # with self.monitor_lock:
+        for param_pv in self._pv_manager.parameter_pvs():
+            parameter = self._beamline.parameter(self._pv_manager.get_param_name_from_pv(param_pv))
+            self._set_parameter_pvs(param_pv, parameter)
+        self.updatePVs()
+
+    def _set_parameter_pvs(self, pv_alias, parameter):
+        """
+        Update the parameter PVs with the current values from the beamline model.
+        :param pv_alias: The PV alias for this parameter
+        :param parameter: The parameter object
+        """
+        self.setParam(pv_alias + SP_SUFFIX, parameter.sp)
+        self.setParam(pv_alias + SP_RBV_SUFFIX, parameter.sp_rbv)
+        self.setParam(pv_alias + CHANGED_SUFFIX, parameter.sp_changed)

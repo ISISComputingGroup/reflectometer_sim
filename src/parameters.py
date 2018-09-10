@@ -43,7 +43,7 @@ class BeamlineParameter(object):
         Args:
             set_point: the set point
         """
-        self._set_point = float(set_point)
+        self._set_point = set_point
         self._sp_is_changed = True
 
     @property
