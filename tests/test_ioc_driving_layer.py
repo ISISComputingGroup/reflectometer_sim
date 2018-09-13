@@ -176,8 +176,13 @@ class BeamlineMoveDurationTest(unittest.TestCase):
         slit_2_pos = TrackingPosition("s2_pos", slit_2)
         slit_3_pos = TrackingPosition("s3_pos", slit_3)
         det_pos = TrackingPosition("det_pos", detector)
-        beamline = Beamline([supermirror, slit_2, slit_3, detector], [smangle, slit_2_pos, slit_3_pos, det_pos], [supermirror_driver, slit_2_driver, slit_3_driver, detector_driver])
-        beamline.mode = BeamlineMode("mode name", [smangle.name, slit_2_pos.name, slit_3_pos.name, det_pos.name])
+        components = [supermirror, slit_2, slit_3, detector]
+        beamline_parameters = [smangle, slit_2_pos, slit_3_pos, det_pos]
+        drivers = [supermirror_driver, slit_2_driver, slit_3_driver, detector_driver]
+        mode = BeamlineMode("mode name", [smangle.name, slit_2_pos.name, slit_3_pos.name, det_pos.name])
+        beamline = Beamline(components, beamline_parameters, drivers, [mode])
+
+        beamline.active_mode = mode
 
         beam_start = PositionAndAngle(0.0, 0.0, 0.0)
         beamline.set_incoming_beam(beam_start)

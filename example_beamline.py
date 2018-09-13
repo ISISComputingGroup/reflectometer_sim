@@ -28,7 +28,7 @@ def create_beamline():
         [theta],
         [])
     beamline.set_incoming_beam(beam_start)
-    beamline.mode = BeamlineMode("NR", ["theta"])
+    beamline.active_mode = BeamlineMode("NR", ["theta"])
 
     return beamline
 

@@ -9,9 +9,12 @@ class BeamlineParameter(object):
     value that is set.
     """
 
-    def __init__(self, name):
-        self._set_point = None
-        self._set_point_rbv = None
+    def __init__(self, name, sim=False, init=None):
+        if sim:
+            self._set_point = init
+            self._set_point_rbv = init
+        else:
+            self._set_point = None
         self._sp_is_changed = False
         self._name = name
         self.after_move_listener = lambda x: None
@@ -40,7 +43,7 @@ class BeamlineParameter(object):
         Args:
             set_point: the set point
         """
-        self._set_point = float(set_point)
+        self._set_point = set_point
         self._sp_is_changed = True
 
     @property
@@ -111,14 +114,14 @@ class ReflectionAngle(BeamlineParameter):
     Angle is measure with +ve in the anti-clockwise direction)
     """
 
-    def __init__(self, name, reflection_component):
+    def __init__(self, name, reflection_component, sim=False, init=0):
         """
         Initializer.
         Args:
             name (str): Name of the reflection angle
             reflection_component (src.components.ReflectingComponent): the active component at the reflection point
         """
-        super(ReflectionAngle, self).__init__(name, )
+        super(ReflectionAngle, self).__init__(name, sim, init)
         self._reflection_component = reflection_component
 
     def _move_component(self):
@@ -131,14 +134,14 @@ class Theta(ReflectionAngle):
     Angle is measure with +ve in the anti-clockwise direction (opposite of room coordinates)
     """
 
-    def __init__(self, name, ideal_sample_point):
+    def __init__(self, name, ideal_sample_point, sim=False, init=0):
         """
         Initializer.
         Args:
             name (str): name of theta
             ideal_sample_point (src.components.ReflectingComponent): the ideal sample point active component
         """
-        super(Theta, self).__init__(name, ideal_sample_point)
+        super(Theta, self).__init__(name, ideal_sample_point, sim, init)
 
 
 class TrackingPosition(BeamlineParameter):
@@ -146,14 +149,14 @@ class TrackingPosition(BeamlineParameter):
     Component which tracks the position of the beam with a single degree of freedom. E.g. slit set on a height stage
     """
 
-    def __init__(self, name, component):
+    def __init__(self, name, component, sim=False, init=0):
         """
 
         Args:
             name: Name of the variable
             component (src.components.PassiveComponent): component that the tracking is based on
         """
-        super(TrackingPosition, self).__init__(name)
+        super(TrackingPosition, self).__init__(name, sim, init)
         self._component = component
 
     def _move_component(self):
@@ -165,14 +168,14 @@ class ComponentEnabled(BeamlineParameter):
     Parameter which sets whether a given device is enabled (i.e. parked in beam) on the beamline.
     """
 
-    def __init__(self, name, component):
+    def __init__(self, name, component, sim=False, init=False):
         """
         Initializer.
         Args:
             name (str): Name of the enabled parameter
             component (src.components.PassiveComponent): the component to be enabled or disabled
         """
-        super(ComponentEnabled, self).__init__(name, )
+        super(ComponentEnabled, self).__init__(name, sim, init)
         self._component = component
 
     def _move_component(self):

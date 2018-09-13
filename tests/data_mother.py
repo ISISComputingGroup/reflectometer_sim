@@ -33,6 +33,10 @@ class DataMother(object):
         two = EmptyBeamlineParameter("two")
         three = EmptyBeamlineParameter("three")
         beamline_parameters = [one, two, three]
-        beamline = Beamline([], beamline_parameters, [])
-        beamline.mode = BeamlineMode("all", [beamline_parameter.name for beamline_parameter in beamline_parameters])
+        mode = BeamlineMode("all", [beamline_parameter.name for beamline_parameter in beamline_parameters])
+
+        beamline = Beamline([], beamline_parameters, [], [mode])
+
+        beamline.active_mode = mode
+
         return beamline_parameters, beamline
