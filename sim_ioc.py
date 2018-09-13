@@ -70,7 +70,7 @@ def create_beamline():
     modes = [nr_mode, pnr_mode, disabled_mode]
 
     # init beamline
-    bl = Beamline(comps, params, modes)
+    bl = Beamline(comps, params, [], modes)
     bl.set_incoming_beam(beam_start)
     bl.active_mode = nr_mode
     return bl, modes
@@ -80,8 +80,9 @@ beamline, modes = create_beamline()
 
 pv_db = PVManager(PARAMS_FIELDS, [mode.name for mode in modes])
 SERVER = SimpleServer()
+print("Prefix: {}".format(REFLECTOMETRY_PREFIX))
 for pv_name in pv_db.PVDB.keys():
-    print("creating pv: " + pv_name)
+    print("creating pv: {}".format(pv_name))
 SERVER.createPV(REFLECTOMETRY_PREFIX, pv_db.PVDB)
 DRIVER = ReflectometryDriver(SERVER, beamline, pv_db)
 

@@ -32,12 +32,18 @@ class TestComponentBeamline(unittest.TestCase):
         theta.sp_no_move = 0
         smangle = ReflectionAngle("smangle", self.polarising_mirror)
         smangle.sp_no_move = 0
-        self.beamline = Beamline(
-            [s0, s1, frame_overlap_mirror, self.polarising_mirror, s2, self.ideal_sample_point, s3, analyser, s4, detector],
-            [smangle, theta], [])
-        self.beamline.set_incoming_beam(beam_start)
+
         self.nr_mode = BeamlineMode("NR Mode", [theta.name])
         self.polarised_mode = BeamlineMode("NR Mode", [smangle.name, theta.name])
+
+        self.beamline = Beamline(
+            [s0, s1, frame_overlap_mirror, self.polarising_mirror, s2, self.ideal_sample_point, s3, analyser, s4, detector],
+            [smangle, theta],
+            [],
+            [self.nr_mode, self.polarised_mode]
+        )
+        self.beamline.set_incoming_beam(beam_start)
+
 
     def test_GIVEN_beam_line_contains_multiple_component_WHEN_set_theta_THEN_angle_between_incoming_and_outgoing_beam_is_correct(self):
         self.beamline.active_mode = self.nr_mode
