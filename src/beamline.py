@@ -9,16 +9,21 @@ class BeamlineMode(object):
     Beamline mode definition; which components and parameters are calculated on move.
     """
 
-    def __init__(self, name, beamline_parameters_to_calculate, sp_inits={}):
+    def __init__(self, name, beamline_parameters_to_calculate, sp_inits=None):
         """
         Initialize.
         Args:
             name (str): name of the beam line mode
-            beamline_parameters_to_calculate: Beamline parameters in this mode which should be automatically moved to whenever a preceding parameter is changed
+            beamline_parameters_to_calculate (list[str]): Beamline parameters in this mode
+                which should be automatically moved to whenever a preceding parameter is changed
             sp_inits: The initial beamline parameter values that should be set when switching to this mode
         """
+        self.name = name
         self._beamline_parameters_to_calculate = beamline_parameters_to_calculate
-        self._sp_inits = sp_inits
+        if sp_inits is None:
+            self._sp_inits = {}
+        else:
+            self._sp_inits = sp_inits
 
     def has_beamline_parameter(self, beamline_parameter):
         """
@@ -35,7 +40,8 @@ class BeamlineMode(object):
         parameter
         Args:
             beamline_parameters(list[src.parameters.BeamlineParameter]): the beamline parameters which maybe in the mode
-            first_parameter(src.parameters.BeamlineParameter): the parameter after which to include parameters; None for include all
+            first_parameter(src.parameters.BeamlineParameter): the parameter after which to include parameters; None for
+            include all
 
         Returns: a list of parameters after the first parameter which are in this mode
 
@@ -49,15 +55,14 @@ class BeamlineMode(object):
                 parameters_in_mode.append(beamline_parameter)
         return parameters_in_mode
 
-    def _sp_inits(self):
+    @property
+    def initial_setpoints(self):
         """
-        Set point read back value
+        Set point initial values
         Returns: the set point
 
         """
         return self._sp_inits
-
-    initial_setpoints = property(_sp_inits)
 
 
 class Beamline(object):
@@ -70,7 +75,8 @@ class Beamline(object):
         The initializer.
         Args:
             components (list[src.components.Component]): The collection of beamline components
-            beamline_parameters (list[src.parameters.BeamlineParameter]): a dictionary of parameters that characterise the beamline
+            beamline_parameters (list[src.parameters.BeamlineParameter]): a dictionary of parameters that characterise
+                the beamline
             drivers(list[src.ioc_driver.IocDriver]): a list of motor drivers linked to a component in the beamline
         """
         self._components = components
@@ -83,21 +89,46 @@ class Beamline(object):
             self._beamline_parameters[beamline_parameter.name] = beamline_parameter
             beamline_parameter.after_move_listener = self.update_beamline_parameters
 
-        [component.set_beam_path_update_listener(self.update_beam_path) for component in components]
+        for component in components:
+            component.after_beam_path_update_listener = self.update_beam_path
 
         self.incoming_beam = None
         self._mode = None
 
-    def _mode(self, mode):
+    @property
+    def mode(self):
+        """
+        Returns: the current modes
+        """
+        return self._mode
+
+    @mode.setter
+    def mode(self, mode):
+        """
+        Set the current mode (setting presets as expected)
+        Args:
+            mode (BeamlineMode): mode to set
+        """
         self._mode = mode
         self.init_setpoints()
 
-    def _move(self, _):
+    @property
+    def move(self):
+        """
+        Move the beamline.
+        Returns: 0
+        """
+        return 0
+
+    @move.setter
+    def move(self, _):
+        """
+        Move to all the beamline parameters in the mode or that have changed
+        Args:
+            _: dummy can be anything
+        """
         self.update_beamline_parameters()
         self._move_drivers(self._get_max_move_duration())
-
-    move = property(None, _move)
-    mode = property(None, _mode)
 
     def __getitem__(self, item):
         """
@@ -115,11 +146,13 @@ class Beamline(object):
             incoming_beam: incoming beam
         """
         self.incoming_beam = incoming_beam
-        self.update_beam_path()
+        self.update_beam_path(None)
 
-    def update_beam_path(self):
+    def update_beam_path(self, src):
         """
         Updates the beam path for all components
+        Args:
+            src: source component of the update or None for not from component change
         """
         outgoing = self.incoming_beam
         for component in self._components:
@@ -146,10 +179,10 @@ class Beamline(object):
     def parameter(self, key):
         """
         Args:
-            key: key of parameter to return
+            key (str): key of parameter to return
 
-        Returns (src.parameters.BeamlineParameter):
-            the beamline parameter with the given key
+        Returns:
+            src.parameters.BeamlineParameter: the beamline parameter with the given key
         """
         return self._beamline_parameters[key]
 
@@ -158,7 +191,7 @@ class Beamline(object):
         Applies the initial values set in the current beamline mode to the relevant beamline parameter setpoints.
         """
         for key, value in self._mode.initial_setpoints.iteritems():
-            self._beamline_parameters[key].sp = value
+            self._beamline_parameters[key].sp_no_move = value
 
     def _move_drivers(self, move_duration):
         for driver in self._drivers:

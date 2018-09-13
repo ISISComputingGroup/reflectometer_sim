@@ -3,9 +3,11 @@ from math import fabs
 from mock import MagicMock, PropertyMock, patch
 from hamcrest import *
 
-from src.components import PassiveComponent, ActiveComponent, TiltingJaws, LinearMovement, PositionAndAngle
-from src.ioc_driver import HeightDriver, HeightAndTiltDriver, HeightAndAngleDriver
 from src.beamline import Beamline, BeamlineMode
+from src.components import TiltingJaws, Component, ReflectingComponent
+from src.movement_strategy import LinearMovement
+from src.gemoetry import PositionAndAngle
+from src.ioc_driver import HeightDriver, HeightAndTiltDriver, HeightAndAngleDriver
 from src.parameters import ReflectionAngle, TrackingPosition
 
 FLOAT_TOLERANCE = 1e-9
@@ -26,7 +28,7 @@ class TestHeightDriver(unittest.TestCase):
         max_velocity = 10.0
         self.height_axis = create_mock_axis("JAWS:HEIGHT", start_position, max_velocity)
 
-        self.jaws = PassiveComponent("component", movement_strategy=LinearMovement(0.0, 10.0, 90.0))
+        self.jaws = Component("component", movement_strategy=LinearMovement(0.0, 10.0, 90.0))
         self.jaws.set_incoming_beam(PositionAndAngle(0.0, 0.0, 0.0))
 
         self.jaws_driver = HeightDriver(self.jaws, self.height_axis)
@@ -114,7 +116,7 @@ class TestHeightAndAngleDriver(unittest.TestCase):
         max_velocity_angle = 10.0
         self.angle_axis = create_mock_axis("SM:ANGLE", start_position_angle, max_velocity_angle)
 
-        self.supermirror = ActiveComponent("component", movement_strategy=LinearMovement(0.0, 10.0, 90.0))
+        self.supermirror = Component("component", movement_strategy=LinearMovement(0.0, 10.0, 90.0))
         self.supermirror.set_incoming_beam(PositionAndAngle(0.0, 0.0, 0.0))
 
         self.supermirror_driver = HeightAndAngleDriver(self.supermirror, self.height_axis, self.angle_axis)
@@ -151,17 +153,17 @@ class BeamlineMoveDurationTest(unittest.TestCase):
     def test_GIVEN_multiple_components_in_beamline_WHEN_triggering_move_THEN_components_move_at_speed_of_slowest_axis(self):
         sm_angle = 0.0
         sm_angle_to_set = 22.5
-        supermirror = ActiveComponent("supermirror", movement_strategy=LinearMovement(y_position=0.0, z_position=10.0, angle=90.0))
+        supermirror = ReflectingComponent("supermirror", movement_strategy=LinearMovement(y_position=0.0, z_position=10.0, angle=90.0))
         sm_height_axis = create_mock_axis("SM:HEIGHT", 0.0, 10.0)
         sm_angle_axis = create_mock_axis("SM:ANGLE", sm_angle, 10.0)
         supermirror.angle = sm_angle
         supermirror_driver = HeightAndAngleDriver(supermirror, sm_height_axis, sm_angle_axis)
 
-        slit_2 = PassiveComponent("slit_2", movement_strategy=LinearMovement(y_position=0.0, z_position=20.0, angle=90.0))
+        slit_2 = Component("slit_2", movement_strategy=LinearMovement(y_position=0.0, z_position=20.0, angle=90.0))
         slit_2_height_axis = create_mock_axis("SLIT2:HEIGHT", 0.0, 10.0)
         slit_2_driver = HeightDriver(slit_2, slit_2_height_axis)
 
-        slit_3 = PassiveComponent("slit_3", movement_strategy=LinearMovement(y_position=0.0, z_position=30.0, angle=90.0))
+        slit_3 = Component("slit_3", movement_strategy=LinearMovement(y_position=0.0, z_position=30.0, angle=90.0))
         slit_3_height_axis = create_mock_axis("SLIT3:HEIGHT", 0.0, 10.0)
         slit_3_driver = HeightDriver(slit_3, slit_3_height_axis)
 
@@ -174,19 +176,19 @@ class BeamlineMoveDurationTest(unittest.TestCase):
         slit_2_pos = TrackingPosition("s2_pos", slit_2)
         slit_3_pos = TrackingPosition("s3_pos", slit_3)
         det_pos = TrackingPosition("det_pos", detector)
-        slit_2_pos.sp = 0.0
-        slit_3_pos.sp = 0.0
-        det_pos.sp = 0.0
         beamline = Beamline([supermirror, slit_2, slit_3, detector], [smangle, slit_2_pos, slit_3_pos, det_pos], [supermirror_driver, slit_2_driver, slit_3_driver, detector_driver])
         beamline.mode = BeamlineMode("mode name", [smangle.name, slit_2_pos.name, slit_3_pos.name, det_pos.name])
 
         beam_start = PositionAndAngle(0.0, 0.0, 0.0)
         beamline.set_incoming_beam(beam_start)
+        slit_2_pos.sp_no_move = 0.0
+        slit_3_pos.sp_no_move = 0.0
+        det_pos.sp_no_move = 0.0
 
         # detector angle axis takes longest
         expected_max_duration = 4.5
 
-        smangle.sp = sm_angle_to_set
+        smangle.sp_no_move = sm_angle_to_set
         with patch.object(beamline, '_move_drivers') as mock:
             beamline.move = 1
 
