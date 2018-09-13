@@ -1,3 +1,7 @@
+"""
+The driving layer communicates between the component layer and underlying pvs.
+"""
+
 import math
 
 
@@ -82,7 +86,8 @@ class HeightAndTiltDriver(HeightDriver):
         :return: The expected duration of a move based on move distance and axis speed for the slowest axis.
         """
         vertical_move_duration = self._get_distance_height() / self._height_axis.max_velocity
-        angular_move_duration = math.fabs(self._tilt_axis.value - self._target_angle_perpendicular()) / self._tilt_axis.max_velocity
+        distance_to_move = math.fabs(self._tilt_axis.value - self._target_angle_perpendicular())
+        angular_move_duration = distance_to_move / self._tilt_axis.max_velocity
         return max(vertical_move_duration, angular_move_duration)
 
     def perform_move(self, move_duration):
@@ -114,8 +119,10 @@ class HeightAndAngleDriver(HeightDriver):
         """
         :return: The expected duration of a move based on move distance and axis speed for the slowest axis.
         """
-        vertical_move_duration = math.fabs(self._height_axis.value - self._component.sp_position().y) / self._height_axis.max_velocity
-        angular_move_duration = math.fabs(self._angle_axis.value - self._component.angle) / self._angle_axis.max_velocity
+        height_to_move = math.fabs(self._height_axis.value - self._component.sp_position().y)
+        vertical_move_duration = height_to_move / self._height_axis.max_velocity
+        angle_to_move = math.fabs(self._angle_axis.value - self._component.angle)
+        angular_move_duration = angle_to_move / self._angle_axis.max_velocity
         return max(vertical_move_duration, angular_move_duration)
 
     def perform_move(self, move_duration):
@@ -123,7 +130,8 @@ class HeightAndAngleDriver(HeightDriver):
         Tells the height and angle axes to move to the setpoint within a given time frame.
         :param move_duration: The desired duration of the move.
         """
-        self._height_axis.velocity = math.fabs(self._height_axis.value - self._component.sp_position().y) / move_duration
+        height_to_move = math.fabs(self._height_axis.value - self._component.sp_position().y)
+        self._height_axis.velocity = height_to_move / move_duration
         self._angle_axis.velocity = math.fabs(self._angle_axis.value - self._component.angle) / move_duration
         self._height_axis.value = self._component.sp_position().y
         self._angle_axis.value = self._component.angle
