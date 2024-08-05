@@ -1,5 +1,5 @@
+
 from pcaspy import Driver
-from threading import RLock
 from pv_manager import *
 
 

@@ -17,7 +17,7 @@ class IocDriver(object):
         This should be overridden in the subclass
         Returns: The maximum duration of the requested move for all associated axes
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def perform_move(self, move_duration):
         """
@@ -25,7 +25,7 @@ class IocDriver(object):
         a given duration
         :param move_duration: The duration in which to perform this move
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
 class HeightDriver(IocDriver):

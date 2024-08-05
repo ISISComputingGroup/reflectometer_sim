@@ -3,13 +3,12 @@ import unittest
 from hamcrest import *
 
 from src.beamline import Beamline, BeamlineMode
-
-from src.components import ReflectingComponent, Component
-from src.movement_strategy import LinearMovement
+from src.components import Component, ReflectingComponent
 from src.gemoetry import Position, PositionAndAngle
-from src.parameters import Theta, ReflectionAngle, TrackingPosition, ComponentEnabled
+from src.movement_strategy import LinearMovement
+from src.parameters import ComponentEnabled, ReflectionAngle, Theta, TrackingPosition
 from tests.data_mother import DataMother, EmptyBeamlineParameter
-from tests.utils import position, DEFAULT_TEST_TOLERANCE
+from tests.utils import DEFAULT_TEST_TOLERANCE, position
 
 
 class TestBeamlineParameter(unittest.TestCase):

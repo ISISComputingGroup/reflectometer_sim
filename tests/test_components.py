@@ -1,13 +1,13 @@
 import unittest
+from math import radians, tan
 
-from math import tan, radians, sqrt
 from hamcrest import *
 from parameterized import parameterized
 
 from src.components import Component, ReflectingComponent, TiltingJaws
-from src.movement_strategy import LinearMovement
 from src.gemoetry import Position, PositionAndAngle
-from tests.utils import position_and_angle, position
+from src.movement_strategy import LinearMovement
+from tests.utils import position, position_and_angle
 
 
 class TestComponent(unittest.TestCase):

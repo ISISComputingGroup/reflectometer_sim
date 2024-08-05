@@ -1,13 +1,14 @@
 import unittest
 from math import fabs
-from mock import MagicMock, PropertyMock, patch
+
 from hamcrest import *
+from mock import MagicMock, patch
 
 from src.beamline import Beamline, BeamlineMode
-from src.components import TiltingJaws, Component, ReflectingComponent
-from src.movement_strategy import LinearMovement
+from src.components import Component, ReflectingComponent, TiltingJaws
 from src.gemoetry import PositionAndAngle
-from src.ioc_driver import HeightDriver, HeightAndTiltDriver, HeightAndAngleDriver
+from src.ioc_driver import HeightAndAngleDriver, HeightAndTiltDriver, HeightDriver
+from src.movement_strategy import LinearMovement
 from src.parameters import ReflectionAngle, TrackingPosition
 
 FLOAT_TOLERANCE = 1e-9

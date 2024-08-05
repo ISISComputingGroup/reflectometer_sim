@@ -1,12 +1,12 @@
 import unittest
+from math import radians, sqrt, tan
 
-from math import tan, radians, sqrt
 from hamcrest import *
 from parameterized import parameterized
 
-from src.movement_strategy import LinearMovement, ANGULAR_TOLERANCE
 from src.gemoetry import Position, PositionAndAngle
-from tests.utils import position_and_angle, position
+from src.movement_strategy import ANGULAR_TOLERANCE, LinearMovement
+from tests.utils import position
 
 
 class TestMovementIntercept(unittest.TestCase):

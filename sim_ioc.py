@@ -1,11 +1,12 @@
 from pcaspy import SimpleServer
-from src.ChannelAccess.macros import *
-from src.components import *
+
 from src.beamline import Beamline, BeamlineMode
-from src.parameters import *
-from src.ChannelAccess.pv_server import ReflectometryDriver
+from src.ChannelAccess.macros import *
 from src.ChannelAccess.pv_manager import PVManager
+from src.ChannelAccess.pv_server import ReflectometryDriver
+from src.components import *
 from src.movement_strategy import LinearMovement
+from src.parameters import *
 
 STATUS_PV_FIELDS = {'type': 'enum', 'enums': ["OUT", "IN"]}
 FLOAT_PV_FIELDS = {'type': 'float', 'prec': 3, 'value': 0.0}
@@ -63,7 +64,7 @@ def create_beamline():
     nr_inits = {"smenabled": False, "smangle": 0.0}
     pnr_inits = {"smenabled": True, "smangle": 0.5}
 
-    nr_mode = BeamlineMode("nr", [param for param in PARAMS_FIELDS.keys() if param is not "smangle"], nr_inits)
+    nr_mode = BeamlineMode("nr", [param for param in PARAMS_FIELDS.keys() if param != "smangle"], nr_inits)
     pnr_mode = BeamlineMode("pnr", PARAMS_FIELDS.keys(), pnr_inits)
     disabled_mode = BeamlineMode("disabled", [])
 

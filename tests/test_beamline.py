@@ -1,12 +1,11 @@
 import unittest
 
-from math import tan, radians
 from hamcrest import *
 
-from src.components import ReflectingComponent, Component
-from src.movement_strategy import LinearMovement
-from src.gemoetry import PositionAndAngle
 from src.beamline import Beamline
+from src.components import Component, ReflectingComponent
+from src.gemoetry import PositionAndAngle
+from src.movement_strategy import LinearMovement
 from tests.utils import position_and_angle
 
 

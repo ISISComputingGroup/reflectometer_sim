@@ -1,4 +1,4 @@
-from src.beamline import BeamlineMode, Beamline
+from src.beamline import Beamline, BeamlineMode
 from src.parameters import BeamlineParameter
 
 

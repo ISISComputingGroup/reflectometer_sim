@@ -2,9 +2,9 @@
 Classes and objects decribing the movement of items
 """
 
-from math import fabs, tan, radians, sin, cos
+from math import cos, fabs, radians, sin, tan
 
-from src.gemoetry import PositionAndAngle, Position
+from src.gemoetry import Position, PositionAndAngle
 
 # Tolerance to use when comparing an angle with another angle
 ANGULAR_TOLERANCE = 1e-12
