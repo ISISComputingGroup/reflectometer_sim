@@ -79,7 +79,9 @@ class Component(object):
             value: the value to set away from the beam, e.g. height
         """
 
-        self._movement_strategy.set_position_relative_to_beam(self.calculate_beam_interception(), value)
+        self._movement_strategy.set_position_relative_to_beam(
+            self.calculate_beam_interception(), value
+        )
 
     def sp_position(self):
         """
@@ -92,6 +94,7 @@ class TiltingJaws(Component):
     """
     Jaws which can tilt.
     """
+
     component_to_beam_angle = 90
 
     def __init__(self, name, movement_strategy):
@@ -114,6 +117,7 @@ class ReflectingComponent(Component):
     """
     Components which reflects the beam from an reflecting surface at an angle.
     """
+
     def __init__(self, name, movement_strategy):
         """
         Initializer.
@@ -149,7 +153,7 @@ class ReflectingComponent(Component):
             return self.incoming_beam
 
         target_position = self.calculate_beam_interception()
-        angle_between_beam_and_component = (self._angle - self.incoming_beam.angle)
+        angle_between_beam_and_component = self._angle - self.incoming_beam.angle
         angle = angle_between_beam_and_component * 2 + self.incoming_beam.angle
         return PositionAndAngle(target_position.y, target_position.z, angle)
 

@@ -9,6 +9,7 @@ class IocDriver(object):
     """
     Drives an actual motor IOC based on a component in the beamline model.
     """
+
     def __init__(self, component):
         self._component = component
 
@@ -17,7 +18,7 @@ class IocDriver(object):
         This should be overridden in the subclass
         Returns: The maximum duration of the requested move for all associated axes
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def perform_move(self, move_duration):
         """
@@ -25,13 +26,14 @@ class IocDriver(object):
         a given duration
         :param move_duration: The duration in which to perform this move
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
 class HeightDriver(IocDriver):
     """
     Drives a component with vertical movement
     """
+
     def __init__(self, component, height_axis):
         """
         Constructor.
@@ -66,6 +68,7 @@ class HeightAndTiltDriver(HeightDriver):
     """
     Drives a component that has variable tilt in order to stay perpendicular to the beam in addition to variable height.
     """
+
     ANGULAR_OFFSET = 90.0
 
     def __init__(self, component, height_axis, tilt_axis):
@@ -96,7 +99,9 @@ class HeightAndTiltDriver(HeightDriver):
         :param move_duration: The desired duration of the move.
         """
         self._height_axis.velocity = self._get_distance_height() / move_duration
-        self._tilt_axis.velocity = math.fabs(self._tilt_axis.value - self._target_angle_perpendicular()) / move_duration
+        self._tilt_axis.velocity = (
+            math.fabs(self._tilt_axis.value - self._target_angle_perpendicular()) / move_duration
+        )
         self._height_axis.value = self._component.sp_position().y
         self._tilt_axis.value = self._component.calculate_tilt_angle()
 
@@ -105,6 +110,7 @@ class HeightAndAngleDriver(HeightDriver):
     """
     Drives a component that has variable height and angle.
     """
+
     def __init__(self, component, height_axis, angle_axis):
         """
         Constructor.
@@ -132,6 +138,8 @@ class HeightAndAngleDriver(HeightDriver):
         """
         height_to_move = math.fabs(self._height_axis.value - self._component.sp_position().y)
         self._height_axis.velocity = height_to_move / move_duration
-        self._angle_axis.velocity = math.fabs(self._angle_axis.value - self._component.angle) / move_duration
+        self._angle_axis.velocity = (
+            math.fabs(self._angle_axis.value - self._component.angle) / move_duration
+        )
         self._height_axis.value = self._component.sp_position().y
         self._angle_axis.value = self._component.angle

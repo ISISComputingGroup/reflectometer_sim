@@ -2,9 +2,9 @@
 Classes and objects decribing the movement of items
 """
 
-from math import fabs, tan, radians, sin, cos
+from math import cos, fabs, radians, sin, tan
 
-from src.gemoetry import PositionAndAngle, Position
+from src.gemoetry import Position, PositionAndAngle
 
 # Tolerance to use when comparing an angle with another angle
 ANGULAR_TOLERANCE = 1e-12
@@ -42,14 +42,20 @@ class LinearMovement(object):
             y, z = self._zero_angle(y_b, self._angle_and_position)
         elif fabs(angle_m % 180.0) <= ANGULAR_TOLERANCE:
             y, z = self._zero_angle(y_m, beam)
-        elif fabs(angle_m % 180.0 - 90) <= ANGULAR_TOLERANCE or fabs(angle_m % 180.0 + 90) <= ANGULAR_TOLERANCE:
+        elif (
+            fabs(angle_m % 180.0 - 90) <= ANGULAR_TOLERANCE
+            or fabs(angle_m % 180.0 + 90) <= ANGULAR_TOLERANCE
+        ):
             y, z = self._right_angle(z_m, beam)
-        elif fabs(angle_b % 180.0 - 90) <= ANGULAR_TOLERANCE or fabs(angle_b % 180.0 + 90) <= ANGULAR_TOLERANCE:
+        elif (
+            fabs(angle_b % 180.0 - 90) <= ANGULAR_TOLERANCE
+            or fabs(angle_b % 180.0 + 90) <= ANGULAR_TOLERANCE
+        ):
             y, z = self._right_angle(z_b, self._angle_and_position)
         else:
             tan_b = tan(radians(angle_b))
             tan_m = tan(radians(angle_m))
-            z = 1/(tan_m - tan_b) * (y_b - y_m + z_m * tan_m - z_b * tan_b)
+            z = 1 / (tan_m - tan_b) * (y_b - y_m + z_m * tan_m - z_b * tan_b)
             y = tan_b * tan_m / (tan_b - tan_m) * (y_m / tan_m - y_b / tan_b + z_b - z_m)
 
         return Position(y, z)
@@ -65,7 +71,9 @@ class LinearMovement(object):
 
         """
         y = y_zero
-        z = position_and_angle.z + (y_zero - position_and_angle.y) / tan(radians(position_and_angle.angle))
+        z = position_and_angle.z + (y_zero - position_and_angle.y) / tan(
+            radians(position_and_angle.angle)
+        )
         return y, z
 
     def _right_angle(self, z_zero, position_and_angle):
@@ -78,7 +86,9 @@ class LinearMovement(object):
         Returns: y and z of intercept
         """
 
-        y = position_and_angle.y + (z_zero - position_and_angle.z) * tan(radians(position_and_angle.angle))
+        y = position_and_angle.y + (z_zero - position_and_angle.z) * tan(
+            radians(position_and_angle.angle)
+        )
         z = z_zero
         return y, z
 

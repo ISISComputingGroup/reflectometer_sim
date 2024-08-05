@@ -1,5 +1,4 @@
 from pcaspy import Driver
-from threading import RLock
 from pv_manager import *
 
 
@@ -8,6 +7,7 @@ class ReflectometryDriver(Driver):
     The driver which provides an interface for the reflectometry server to channel access by creating PVs and processing
     incoming CA get and put requests.
     """
+
     def __init__(self, server, beamline, pv_manager):
         """
         The Constructor.
@@ -57,7 +57,7 @@ class ReflectometryDriver(Driver):
                 param.move = 1
             elif reason.endswith(SP_SUFFIX):
                 param.sp_no_move = value
-                self.setParam(reason+":RBV", param.sp_rbv)
+                self.setParam(reason + ":RBV", param.sp_rbv)
             elif reason.endswith(SET_AND_MOVE_SUFFIX):
                 param.sp = value
         elif reason == BEAMLINE_MOVE:

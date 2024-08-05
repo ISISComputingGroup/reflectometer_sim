@@ -105,7 +105,7 @@ class BeamlineParameter(object):
         """
         Moves the component(s) associated with this parameter to the setpoint.
         """
-        raise NotImplemented("This must be implement in the sub class")
+        raise NotImplementedError("This must be implement in the sub class")
 
 
 class ReflectionAngle(BeamlineParameter):

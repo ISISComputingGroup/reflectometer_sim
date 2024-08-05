@@ -1,6 +1,5 @@
 import re
 
-
 PARAM_PREFIX = "PARAM:"
 BEAMLINE_MODE = "BL:MODE"
 BEAMLINE_MOVE = "BL:MOVE"
@@ -15,6 +14,7 @@ class PVManager:
     """
     Holds reflectometry PVs and associated utilities.
     """
+
     def __init__(self, params_fields, modes):
         """
         The constructor.
@@ -22,14 +22,11 @@ class PVManager:
         """
         self.PVDB = {
             BEAMLINE_MOVE: {
-                'type': 'int',
-                'count': 1,
-                'value': 0,
+                "type": "int",
+                "count": 1,
+                "value": 0,
             },
-            BEAMLINE_MODE: {
-                'type': 'enum',
-                'enums': modes
-            }
+            BEAMLINE_MODE: {"type": "enum", "enums": modes},
         }
 
         self._pv_lookup = {}
@@ -50,12 +47,12 @@ class PVManager:
             self.PVDB[prepended_alias + SP_SUFFIX] = fields
             self.PVDB[prepended_alias + SP_RBV_SUFFIX] = fields
             self.PVDB[prepended_alias + SET_AND_MOVE_SUFFIX] = fields
-            self.PVDB[prepended_alias + CHANGED_SUFFIX] = {'type': 'enum',
-                                                           'enums': ["NO", "YES"]}
-            self.PVDB[prepended_alias + MOVE_SUFFIX] = {'type': 'int',
-                                                        'count': 1,
-                                                        'value': 0,
-                                                        }
+            self.PVDB[prepended_alias + CHANGED_SUFFIX] = {"type": "enum", "enums": ["NO", "YES"]}
+            self.PVDB[prepended_alias + MOVE_SUFFIX] = {
+                "type": "int",
+                "count": 1,
+                "value": 0,
+            }
             self._pv_lookup[param_alias] = param_name
         except Exception as err:
             print("Error adding parameter PV: " + err.message)
@@ -73,9 +70,9 @@ class PVManager:
             string : A valid PV
         """
         pv_text = name.upper().replace(" ", "_")
-        pv_text = re.sub(r'\W', '', pv_text)
+        pv_text = re.sub(r"\W", "", pv_text)
         # Check some edge cases of unreasonable names
-        if re.search(r"[^0-9_]", pv_text) is None or pv_text == '':
+        if re.search(r"[^0-9_]", pv_text) is None or pv_text == "":
             pv_text = default_pv
 
         # Ensure PVs aren't too long for the 60 character limit
@@ -89,8 +86,8 @@ class PVManager:
         # Append a number if the PV already exists
         while pv in self.PVDB.keys():
             if len(pv) > limit - 2:
-                pv = pv[0:limit - 2]
-            pv += format(i, '02d')
+                pv = pv[0 : limit - 2]
+            pv += format(i, "02d")
             i += 1
 
         return pv
