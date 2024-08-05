@@ -7,6 +7,7 @@ class Position(object):
     """
     The beam position and direction
     """
+
     def __init__(self, y, z):
         self.z = float(z)
         self.y = float(y)
@@ -19,6 +20,7 @@ class PositionAndAngle(Position):
     """
     The beam position and direction
     """
+
     def __init__(self, y, z, angle):
         """
 

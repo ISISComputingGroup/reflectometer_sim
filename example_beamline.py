@@ -10,23 +10,43 @@ def create_beamline():
     beam_start = PositionAndAngle(y=0, z=0, angle=-2.5)
     s0 = Component("s0", movement_strategy=LinearMovement(0, 0, perp_to_floor))
     s1 = Component("s1", movement_strategy=LinearMovement(0, 1, perp_to_floor))
-    frame_overlap_mirror = ReflectingComponent("FOM", movement_strategy=LinearMovement(0, 2, perp_to_floor))
+    frame_overlap_mirror = ReflectingComponent(
+        "FOM", movement_strategy=LinearMovement(0, 2, perp_to_floor)
+    )
     frame_overlap_mirror.enabled = False
-    polarising_mirror = ReflectingComponent("Polarising mirror", movement_strategy=LinearMovement(0, 3, perp_to_floor))
+    polarising_mirror = ReflectingComponent(
+        "Polarising mirror", movement_strategy=LinearMovement(0, 3, perp_to_floor)
+    )
     polarising_mirror.enabled = False
     s2 = Component("s2", movement_strategy=LinearMovement(0, 4, perp_to_floor))
-    ideal_sample_point = ReflectingComponent("Ideal Sample Point", movement_strategy=LinearMovement(0, 5, perp_to_floor))
+    ideal_sample_point = ReflectingComponent(
+        "Ideal Sample Point", movement_strategy=LinearMovement(0, 5, perp_to_floor)
+    )
     s3 = Component("s3", movement_strategy=LinearMovement(0, 6, perp_to_floor))
-    analyser = ReflectingComponent("analyser", movement_strategy=LinearMovement(0, 7, perp_to_floor))
+    analyser = ReflectingComponent(
+        "analyser", movement_strategy=LinearMovement(0, 7, perp_to_floor)
+    )
     analyser.enabled = False
     s4 = Component("s4", movement_strategy=LinearMovement(0, 8, perp_to_floor))
     detector = Component("detector", movement_strategy=LinearMovement(0, 10, perp_to_floor))
 
     theta = Theta("theta", ideal_sample_point)
     beamline = Beamline(
-        [s0, s1, frame_overlap_mirror, polarising_mirror, s2, ideal_sample_point, s3, analyser, s4, detector],
+        [
+            s0,
+            s1,
+            frame_overlap_mirror,
+            polarising_mirror,
+            s2,
+            ideal_sample_point,
+            s3,
+            analyser,
+            s4,
+            detector,
+        ],
         [theta],
-        [])
+        [],
+    )
     beamline.set_incoming_beam(beam_start)
     beamline.active_mode = BeamlineMode("NR", ["theta"])
 
@@ -58,7 +78,7 @@ def generate_theta_movement():
     return positions
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     thetas = generate_theta_movement()
 
     with open("example.csv", mode="w") as f:

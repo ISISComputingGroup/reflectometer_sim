@@ -8,17 +8,18 @@ from src.components import *
 from src.movement_strategy import LinearMovement
 from src.parameters import *
 
-STATUS_PV_FIELDS = {'type': 'enum', 'enums': ["OUT", "IN"]}
-FLOAT_PV_FIELDS = {'type': 'float', 'prec': 3, 'value': 0.0}
-PARAMS_FIELDS = {"smenabled": STATUS_PV_FIELDS,
-                 "smangle": FLOAT_PV_FIELDS,
-                 "slit2pos": FLOAT_PV_FIELDS,
-                 "samplepos": FLOAT_PV_FIELDS,
-                 "theta": FLOAT_PV_FIELDS,
-                 "slit3pos": FLOAT_PV_FIELDS,
-                 "slit4pos": FLOAT_PV_FIELDS,
-                 "detpos": FLOAT_PV_FIELDS,
-                 }
+STATUS_PV_FIELDS = {"type": "enum", "enums": ["OUT", "IN"]}
+FLOAT_PV_FIELDS = {"type": "float", "prec": 3, "value": 0.0}
+PARAMS_FIELDS = {
+    "smenabled": STATUS_PV_FIELDS,
+    "smangle": FLOAT_PV_FIELDS,
+    "slit2pos": FLOAT_PV_FIELDS,
+    "samplepos": FLOAT_PV_FIELDS,
+    "theta": FLOAT_PV_FIELDS,
+    "slit3pos": FLOAT_PV_FIELDS,
+    "slit4pos": FLOAT_PV_FIELDS,
+    "detpos": FLOAT_PV_FIELDS,
+}
 
 
 def create_beamline():
@@ -52,19 +53,14 @@ def create_beamline():
     slit3_pos = TrackingPosition("slit3pos", s3, True)
     slit4_pos = TrackingPosition("slit4pos", s4, True)
     det = TrackingPosition("detpos", point_det, True)
-    params = [sm_enabled,
-              sm_angle,
-              slit2_pos,
-              sample_pos,
-              theta,
-              slit3_pos,
-              slit4_pos,
-              det]
+    params = [sm_enabled, sm_angle, slit2_pos, sample_pos, theta, slit3_pos, slit4_pos, det]
 
     nr_inits = {"smenabled": False, "smangle": 0.0}
     pnr_inits = {"smenabled": True, "smangle": 0.5}
 
-    nr_mode = BeamlineMode("nr", [param for param in PARAMS_FIELDS.keys() if param != "smangle"], nr_inits)
+    nr_mode = BeamlineMode(
+        "nr", [param for param in PARAMS_FIELDS.keys() if param != "smangle"], nr_inits
+    )
     pnr_mode = BeamlineMode("pnr", PARAMS_FIELDS.keys(), pnr_inits)
     disabled_mode = BeamlineMode("disabled", [])
 

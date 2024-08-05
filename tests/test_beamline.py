@@ -10,17 +10,20 @@ from tests.utils import position_and_angle
 
 
 class TestComponentBeamline(unittest.TestCase):
-
     def setup_beamline(self, initial_mirror_angle, mirror_position, beam_start):
         jaws = Component("jaws", movement_strategy=LinearMovement(0, 0, 90))
-        mirror = ReflectingComponent("mirror", movement_strategy=LinearMovement(0, mirror_position, 90))
+        mirror = ReflectingComponent(
+            "mirror", movement_strategy=LinearMovement(0, mirror_position, 90)
+        )
         mirror.angle = initial_mirror_angle
         jaws3 = Component("jaws3", movement_strategy=LinearMovement(0, 20, 90))
         beamline = Beamline([jaws, mirror, jaws3], [], [], [])
         beamline.set_incoming_beam(beam_start)
         return beamline, mirror
 
-    def test_GIVEN_beam_line_contains_one_passive_component_WHEN_beam_set_THEN_component_has_beam_out_same_as_beam_in(self):
+    def test_GIVEN_beam_line_contains_one_passive_component_WHEN_beam_set_THEN_component_has_beam_out_same_as_beam_in(
+        self,
+    ):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         jaws = Component("jaws", movement_strategy=LinearMovement(0, 2, 90))
         beamline = Beamline([jaws], [], [], [])
@@ -30,7 +33,9 @@ class TestComponentBeamline(unittest.TestCase):
 
         assert_that(result, is_(position_and_angle(beam_start)))
 
-    def test_GIVEN_beam_line_contains_multiple_component_WHEN_beam_set_THEN_each_component_has_beam_out_which_is_effected_by_each_component_in_turn(self):
+    def test_GIVEN_beam_line_contains_multiple_component_WHEN_beam_set_THEN_each_component_has_beam_out_which_is_effected_by_each_component_in_turn(
+        self,
+    ):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         mirror_position = 10
         initial_mirror_angle = 45
@@ -43,8 +48,9 @@ class TestComponentBeamline(unittest.TestCase):
         for index, (result, expected_beam) in enumerate(zip(results, expected_beams)):
             assert_that(result, position_and_angle(expected_beam), "in component {}".format(index))
 
-
-    def test_GIVEN_beam_line_contains_multiple_component_WHEN_angle_on_mirror_changed_THEN_beam_positions_are_all_recalculated(self):
+    def test_GIVEN_beam_line_contains_multiple_component_WHEN_angle_on_mirror_changed_THEN_beam_positions_are_all_recalculated(
+        self,
+    ):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         mirror_position = 10
         initial_mirror_angle = 0
@@ -59,9 +65,13 @@ class TestComponentBeamline(unittest.TestCase):
         results = [component.get_outgoing_beam() for component in beamline]
 
         for index, (result, expected_beam) in enumerate(zip(results, expected_beams)):
-            assert_that(result, position_and_angle(expected_beam), "in component index {}".format(index))
+            assert_that(
+                result, position_and_angle(expected_beam), "in component index {}".format(index)
+            )
 
-    def test_GIVEN_beam_line_contains_multiple_component_WHEN_mirror_disabled_THEN_beam_positions_are_all_recalculated(self):
+    def test_GIVEN_beam_line_contains_multiple_component_WHEN_mirror_disabled_THEN_beam_positions_are_all_recalculated(
+        self,
+    ):
         beam_start = PositionAndAngle(y=0, z=0, angle=0)
         mirror_position = 10
         initial_mirror_angle = 45
@@ -73,7 +83,10 @@ class TestComponentBeamline(unittest.TestCase):
         results = [component.get_outgoing_beam() for component in beamline]
 
         for index, (result, expected_beam) in enumerate(zip(results, expected_beams)):
-            assert_that(result, position_and_angle(expected_beam), "in component index {}".format(index))
+            assert_that(
+                result, position_and_angle(expected_beam), "in component index {}".format(index)
+            )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

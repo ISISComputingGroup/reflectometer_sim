@@ -1,6 +1,7 @@
 """
 Resources at a beamline level
 """
+
 from collections import OrderedDict
 
 
@@ -89,8 +90,11 @@ class Beamline(object):
 
         for beamline_parameter in beamline_parameters:
             if beamline_parameter.name in self._beamline_parameters:
-                raise ValueError("Beamline parameters must be uniquely named. Duplicate '{}'".format(
-                    beamline_parameter.name))
+                raise ValueError(
+                    "Beamline parameters must be uniquely named. Duplicate '{}'".format(
+                        beamline_parameter.name
+                    )
+                )
             self._beamline_parameters[beamline_parameter.name] = beamline_parameter
             beamline_parameter.after_move_listener = self.update_beamline_parameters
 
